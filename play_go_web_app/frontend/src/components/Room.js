@@ -39,9 +39,18 @@ export default function Room() {
   return (
     <div className={classes.root}>
       <Grid container spacing={24}>
+        <Grid item xs={12} sm={8}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>tmp</Paper>
+        </Grid>
         <Grid item xs={12} sm={4}>
           <Paper style={{ backgroundColor: "grey", color: "black" }}>
             xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={8}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            <LinearProgress />
+            <LinearProgress color="primary" />
           </Paper>
         </Grid>
         <Grid item xs={12} sm={4}>
@@ -49,39 +58,16 @@ export default function Room() {
             xs=12 sm=6
           </Paper>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            xs=12 sm=6
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            xs=12 sm=6
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+        <Grid container justify="center" xs={12} sm={8}>
+          <Paper
+            style={{ backgroundColor: "grey", color: "black", width: "60%" }}
+          >
             <Goban
               board={board}
               boardColor="#f4bc7c"
               annotations={annotations}
               onCoordinateClick={handleCoordinateClick}
             />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            xs=12 sm=6
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            xs=12 sm=6
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            xs=12 sm=6
           </Paper>
         </Grid>
         <Grid item xs={12} sm={4}>
