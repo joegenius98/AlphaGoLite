@@ -2,56 +2,106 @@ import React, { Component } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 
-export default class Room extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      votesToSkip: 2,
-      guestCanPause: false,
-      isHost: false,
-    };
-    this.roomCode = this.props.match.params.roomCode;
-    this.getRoomDetails();
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
 
-    this.handleCoordinateClick = this.handleCoordinateClick.bind(this);
-  }
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    backgroundColor: "red",
 
-  getRoomDetails() {
-    fetch("/api/get-room" + "?code=" + this.roomCode)
-      .then((response) => response.json())
-      .then((data) => {
-        this.setState({
-          votesToSkip: data.votes_to_skip,
-          guestCanPause: data.guest_can_pause,
-          isHost: data.is_host,
-        });
-      });
-  }
+    minHeight: "100vh",
+  },
+  paper: {
+    padding: theme.spacing(1),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  },
+}));
 
-  handleCoordinateClick(coordinate) {
-    // http://duckpunch.github.io/godash/documentation/#coordinate
-    coordinate;
-  }
-  render() {
-    const board = new godash.Board(19);
-    const annotations = [new godash.Coordinate(2, 2)];
+export default function Room() {
+  const classes = useStyles();
 
-    const divStyle = { width: "50%", height: "50%" };
-
-    return (
-      <div style={divStyle}>
-        {/* <h3>{this.roomCode}</h3>
-        <p>Votes: {this.state.votesToSkip}</p>
-        <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
-        <p>Host: {this.state.isHost.toString()}</p> */}
-        <Goban
-          board={board}
-          boardColor="#efefef"
-          annotations={annotations}
-          onCoordinateClick={this.handleCoordinateClick}
-        />
-        ;
-      </div>
-    );
-  }
+  return (
+    <div className={classes.root}>
+      <Grid
+        container
+        direction="column"
+        justify="space-evenly"
+        alignItems="center"
+        style={{ minHeight: "700px" }}
+      >
+        <Grid
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="flex-start"
+          style={{ minHeight: "700px" }}
+        >
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="center"
+          // style={{ }}
+        >
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="flex-end"
+          style={{ position: "absolute" }}
+        >
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Paper className={classes.paper}>Bar Column</Paper>
+          </Grid>
+        </Grid>
+      </Grid>
+    </div>
+  );
 }
+
+// <div>
+//   <h3>{this.roomCode}</h3>
+//   <p>Votes: {this.state.votesToSkip}</p>
+/* <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
+        <p>Host: {this.state.isHost.toString()}</p>
+        <div style={{width:'300px'}}>
+          <Goban
+            board={board}
+            boardColor="#efefef"
+            annotations={annotations}
+            onCoordinateClick={this.handleCoordinateClick}
+            
+          />
+        </div> */
+
+// </div>
+// AlphaGoLite/play_go_web_app/frontend
