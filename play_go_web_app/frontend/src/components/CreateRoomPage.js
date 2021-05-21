@@ -38,12 +38,16 @@ export default class CreateRoomPage extends Component {
   }
 
   handleRoomButtonPressed() {
+    var value = 0; // by default
+    var myGrid = [...Array(19)].map(e => Array(19).fill(value));
+    this.setState({board:myGrid})
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         votes_to_skip: this.state.votesToSkip,
         guest_can_pause: this.state.guestCanPause,
+        board:JSON.stringify(myGrid),
       }),
     };
     fetch("/api/create-room", requestOptions)
