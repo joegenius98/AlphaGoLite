@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     backgroundColor: "red",
 
-    minHeight: "100vh",
+    minHeight: "1000px",
   },
   paper: {
     padding: theme.spacing(1),
@@ -23,6 +23,14 @@ const useStyles = makeStyles((theme) => ({
 export default function Room() {
   const classes = useStyles();
 
+  const board = new godash.Board(19);
+  const annotations = [new godash.Coordinate(2, 2)];
+
+  function handleCoordinateClick(coordinate) {
+    // http://duckpunch.github.io/godash/documentation/#coordinate
+    coordinate;
+  }
+
   return (
     <div className={classes.root}>
       <Grid
@@ -30,7 +38,7 @@ export default function Room() {
         direction="column"
         justify="space-evenly"
         alignItems="center"
-        style={{ minHeight: "700px" }}
+        style={{ top: "100px", minHeight: "700px" }}
       >
         <Grid
           container
@@ -39,17 +47,23 @@ export default function Room() {
           alignItems="flex-start"
           style={{ minHeight: "700px" }}
         >
-          <Grid item xs={12} sm={3}>
+          {/* <Grid item xs={12} sm={3}>
             <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
+            <Goban
+              board={board}
+              boardColor="#efefef"
+              annotations={annotations}
+              onCoordinateClick={handleCoordinateClick}
+            />
           </Grid>
           <Grid item xs={12} sm={3}>
             <Paper className={classes.paper}>Bar Column</Paper>
           </Grid>
         </Grid>
-        <Grid
+
+        {/* <Grid
           container
           direction="row"
           justify="space-evenly"
@@ -59,9 +73,7 @@ export default function Room() {
           <Grid item xs={12} sm={3}>
             <Paper className={classes.paper}>Bar Column</Paper>
           </Grid>
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
+          <Grid item xs={12} sm={3}></Grid>
           <Grid item xs={12} sm={3}>
             <Paper className={classes.paper}>Bar Column</Paper>
           </Grid>
@@ -82,7 +94,7 @@ export default function Room() {
           <Grid item xs={12} sm={3}>
             <Paper className={classes.paper}>Bar Column</Paper>
           </Grid>
-        </Grid>
+        </Grid> */}
       </Grid>
     </div>
   );
@@ -91,7 +103,7 @@ export default function Room() {
 // <div>
 //   <h3>{this.roomCode}</h3>
 //   <p>Votes: {this.state.votesToSkip}</p>
-/* <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
+/* <p>Guest Can Tilapia: {this.state.guestCanPause.toString()}</p>
         <p>Host: {this.state.isHost.toString()}</p>
         <div style={{width:'300px'}}>
           <Goban
