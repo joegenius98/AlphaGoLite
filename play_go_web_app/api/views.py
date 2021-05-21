@@ -15,6 +15,14 @@ class RoomView(generics.ListAPIView):
 
 
 class GetRoom(APIView):
+    """
+    Information to get from a room:
+        -specatators
+            -Names
+            -Colors
+        -player 1/AI?
+        -player 2/AI?
+    """
     serializer_class = RoomSerializer
     lookup_url_kwarg = 'code'
 
@@ -30,14 +38,17 @@ class GetRoom(APIView):
 
         return Response({'Bad Request': 'Code paramater not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class JoinRoom(APIView):
+    """    
+    Redirect Spectators
+    if they want to join a room
+    """
     lookup_url_kwarg = 'code'
 
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-
+        
         code = request.data.get(self.lookup_url_kwarg)
         if code != None:
             room_result = Room.objects.filter(code=code)
@@ -50,46 +61,44 @@ class JoinRoom(APIView):
 
         return Response({'Bad Request': 'Invalid post data, did not find a code key'}, status=status.HTTP_400_BAD_REQUEST)
 
+class LeaveRoom(APIView):
+    def post(self, request, format=None):
+        if 'room_code' in self.request.session:
+            self.request.session.pop('room_code')
+            host_id = self.request.session.session_key
+            room_results = Room.objects.filter(host=host_id)
+            if len(room_results) > 0:
+                room = room_results[0]
+                room.delete()
+        return Response({'Message': 'Success',"room":str(room_results)}, status=status.HTTP_200_OK)
 
 class CreateRoomView(APIView):
-    # retrieve votes_to_skip and guest_can_pause from JavaScript --> Python vars.
     serializer_class = CreateRoomSerializer
 
     def post(self, request, format=None):
-        # establish session key
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        # retrieve the data and convert from JS --> Python
         serializer = self.serializer_class(data=request.data)
-
-        # if the data inputted is valid (e.g. we have a real number for votes_to_skip)
         if serializer.is_valid():
-            # retrieve the data from serializer
             guest_can_pause = serializer.data.get('guest_can_pause')
             votes_to_skip = serializer.data.get('votes_to_skip')
-            # retrieve session key
+            board = serializer.data.get('board')
             host = self.request.session.session_key
-            # retrieve the unique room from unique session key
             queryset = Room.objects.filter(host=host)
-            # if a room by the same user had already been created
             if queryset.exists():
-                # simply update the current room's settings instead
                 room = queryset[0]
                 room.guest_can_pause = guest_can_pause
                 room.votes_to_skip = votes_to_skip
-                room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+                room.board = board
+                room.save(update_fields=['guest_can_pause', 'votes_to_skip','board'])
                 self.request.session['room_code'] = room.code
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:
-                # otherwise, create a new room
                 room = Room(host=host, guest_can_pause=guest_can_pause,
-                            votes_to_skip=votes_to_skip)
-                # save to SQLite database
+                            votes_to_skip=votes_to_skip, board = board)
                 room.save()
-                # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
-                # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
-        # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
+
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
