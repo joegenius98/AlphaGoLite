@@ -36,7 +36,7 @@ export default class Room extends Component {
     const board = new godash.Board(19);
     const annotations = [new godash.Coordinate(2, 2)];
 
-    const divStyle = { width: "300px", height: "300px" };
+    const divStyle = { width: "50%", height: "50%" };
 
     return (
       <div style={divStyle}>
