@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 
@@ -23,78 +23,72 @@ const useStyles = makeStyles((theme) => ({
 export default function Room() {
   const classes = useStyles();
 
-  const board = new godash.Board(19);
+  // const board = new godash.Board(19);
+  const [board, setBoard] = useState(new godash.Board(19));
+
   const annotations = [new godash.Coordinate(2, 2)];
 
   function handleCoordinateClick(coordinate) {
     // http://duckpunch.github.io/godash/documentation/#coordinate
-    coordinate;
+    console.log(board.toString());
+    setBoard(godash.addMove(board, coordinate, godash.BLACK));
+    console.log(board.toString());
+    console.log(coordinate);
   }
 
   return (
     <div className={classes.root}>
-      <Grid
-        container
-        direction="column"
-        justify="space-evenly"
-        alignItems="center"
-        style={{ top: "100px", minHeight: "700px" }}
-      >
-        <Grid
-          container
-          direction="row"
-          justify="space-evenly"
-          alignItems="flex-start"
-          style={{ minHeight: "700px" }}
-        >
-          {/* <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid> */}
-          <Grid item xs={12} sm={3}>
+      <Grid container spacing={24}>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
             <Goban
               board={board}
-              boardColor="#efefef"
+              boardColor="#f4bc7c"
               annotations={annotations}
               onCoordinateClick={handleCoordinateClick}
             />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
+          </Paper>
         </Grid>
-
-        {/* <Grid
-          container
-          direction="row"
-          justify="space-evenly"
-          alignItems="center"
-          // style={{ }}
-        >
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
-          <Grid item xs={12} sm={3}></Grid>
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
         </Grid>
-        <Grid
-          container
-          direction="row"
-          justify="space-evenly"
-          alignItems="flex-end"
-          style={{ position: "absolute" }}
-        >
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Paper className={classes.paper}>Bar Column</Paper>
-          </Grid>
-        </Grid> */}
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <Paper style={{ backgroundColor: "grey", color: "black" }}>
+            xs=12 sm=6
+          </Paper>
+        </Grid>
       </Grid>
     </div>
   );
