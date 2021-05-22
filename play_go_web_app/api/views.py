@@ -104,8 +104,9 @@ class CreateRoomView(APIView):
                 room = queryset[0]
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
+                room.turn = turn
                 room.board = board
-                room.save(update_fields=["board"])
+                room.save(update_fields=["board", "turn"])
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
