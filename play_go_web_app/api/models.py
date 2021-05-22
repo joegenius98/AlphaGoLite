@@ -18,24 +18,15 @@ def pickRandomColor():
 
 def randomNameP2():
     while True:
-        player2Suggestion = 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
-                                                          "Giraffe", "Armadillo", "Bear",
-                                                          "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
+        player2Suggestion = 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala","Giraffe", "Armadillo", "Bear"]) + random.choice([str(x) for x in range(100)])
         if Room.objects.filter(player1=player2Suggestion).count() == 0:
             return player2Suggestion
 
 
 def randomNameP1():
     while True:
-        player1Suggestion = 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
-                                                          "Giraffe", "Armadillo", "Bear",
-                                                          "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
-        try:
-            tmp=Room.objects.filter(player2=player1Suggestion).count()
-        except:
-            tmp=Room.objects.filter(player1=player1Suggestion).count()
-        if tmp == 0:
-            return player1Suggestion
+        player1Suggestion = 'Anonymous ' + random.choice(["Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
+        return player1Suggestion
 
 
 class Room(models.Model):
