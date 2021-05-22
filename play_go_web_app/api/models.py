@@ -30,15 +30,15 @@ def randomNameP1():
 
 class Room(models.Model):
     code = models.CharField(
-        max_length=8, default=generate_unique_code, unique=True)
+        max_length=8, default=generate_unique_code)
 
     host = models.CharField(max_length=50, unique=True)
 
     # user names of the players
     player1 = models.CharField(
-        default=randomNameP1, max_length=50, unique=True)
+        default=randomNameP1, max_length=50)
     player2 = models.CharField(
-        default=randomNameP2, max_length=50, unique=True)
+        default=randomNameP2, max_length=50)
 
     # stored as hex codes
     player1Color = models.CharField(max_length=7, default=pickRandomColor)

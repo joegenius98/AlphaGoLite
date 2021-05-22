@@ -107,11 +107,11 @@ class UpdateRoom(APIView):
             room.num_spectators = num_spectators
             room.board = board
             room.spectatorArray = spectatorArray
-            room.save(update_fields=["board", "turn"
+            room.save(update_fields=["board", "turn",
                                      "player1Color", "player2Color", "player1", "player2", "spectatorArray", "num_spectators"])
             return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
         # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
-        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Bad Request' + str(serializer.errors) + str(serializer.is_valid()): 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LeaveRoom(APIView):

@@ -6,7 +6,7 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('id', 'code', 'player1', 'player2', 'player1Color', 'player2Color',
-                  'num_spectators', 'turn', 'created_at', "board", "spectatorArray")
+                  'num_spectators', 'turn', 'host', 'created_at', "board", "spectatorArray")
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):
@@ -18,5 +18,5 @@ class CreateRoomSerializer(serializers.ModelSerializer):
 class UpdateRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ('player1', 'player2', 'player1Color', 'player2Color',
+        fields = ('code', 'player1', 'player2', 'turn', 'player1Color', 'player2Color',
                   'num_spectators', 'board', 'spectatorArray')
