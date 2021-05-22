@@ -75,20 +75,10 @@ class LeaveRoom(APIView):
         return Response({'Message': 'Success', "room": str(room_results)}, status=status.HTTP_200_OK)
 
 
-class LeaveRoom(APIView):
-    def post(self, request, format=None):
-        if 'room_code' in self.request.session:
-            self.request.session.pop('room_code')
-            host_id = self.request.session.session_key
-            room_results = Room.objects.filter(host=host_id)
-            if len(room_results) > 0:
-                room = room_results[0]
-                room.delete()
-        return Response({'Message': 'Success', "room": str(room_results)}, status=status.HTTP_200_OK)
-
-
 class CreateRoomView(APIView):
     # convert JavaScript vars. to Python vars.
+
+    # fields = ('turn', 'board')
     serializer_class = CreateRoomSerializer
 
     def post(self, request, format=None):
@@ -100,11 +90,10 @@ class CreateRoomView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             # retrieve data from serializer
-            guest_can_pause = serializer.data.get('guest_can_pause')
-            votes_to_skip = serializer.data.get('votes_to_skip')
+            turn = serializer.data.get('turn')
             board = serializer.data.get('board')
 
-            # retrieve session key
+            # # retrieve session key
             host = self.request.session.session_key
             # retrieve unique room from unique session key
             queryset = Room.objects.filter(host=host)
@@ -113,18 +102,12 @@ class CreateRoomView(APIView):
             if queryset.exists():
                 # simply update this room's settings
                 room = queryset[0]
-                room.guest_can_pause = guest_can_pause
-                room.votes_to_skip = votes_to_skip
-                room.board = board
-                room.save(update_fields=[
-                    'guest_can_pause', 'votes_to_skip', 'board'])
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host, guest_can_pause=guest_can_pause,
-                            votes_to_skip=votes_to_skip, board=board)
+                room = Room(host=host, turn=turn, board=board)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
