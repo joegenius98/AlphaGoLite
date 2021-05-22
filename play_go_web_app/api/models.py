@@ -30,7 +30,11 @@ def randomNameP1():
         player1Suggestion = 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
                                                           "Giraffe", "Armadillo", "Bear",
                                                           "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
-        if Room.objects.filter(player2=player1Suggestion).count() == 0:
+        try:
+            tmp=Room.objects.filter(player2=player1Suggestion).count()
+        except:
+            tmp=Room.objects.filter(player1=player1Suggestion).count()
+        if tmp == 0:
             return player1Suggestion
 
 
