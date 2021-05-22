@@ -13,3 +13,10 @@ class CreateRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('turn', 'board')
+
+
+class UpdateRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ('player1', 'player2', 'player1Color', 'player2Color',
+                  'num_spectators', 'board', 'spectatorArray')

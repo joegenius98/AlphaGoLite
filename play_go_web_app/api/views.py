@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serializers import RoomSerializer, CreateRoomSerializer
+from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
 from .models import Room
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -61,6 +61,57 @@ class JoinRoom(APIView):
             return Response({'Bad Request': 'Invalid Room Code'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'Bad Request': 'Invalid post data, did not find a code key'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateRoom(APIView):
+
+    serializer_class = UpdateRoomSerializer
+
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        # take in data from JavaScript request --> Python-readable
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            # retrieve data from serializer
+            code = serializer.data.get('code')
+            queryset = Room.objects.filter(code=code)
+
+            if not queryset.exists():
+                return Response({'msg': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            player1 = serializer.data.get('player1')
+            player2 = serializer.data.get('player2')
+
+            turn = serializer.data.get('turn')
+
+            player1Color = serializer.data.get('player1Color')
+            player2Color = serializer.data.get('player2Color')
+
+            num_spectators = serializer.data.get('num_spectators')
+            board = serializer.data.get('board')
+            spectatorArray = serializer.data.get('spectatorArray')
+
+            room = queryset[0]
+            # # save room code so that when a user exits and comes back, user can come back to the same room
+            # self.request.session['room_code'] = room.code
+            room.player1 = player1
+
+            room.player2 = player2
+
+            room.turn = turn
+            room.player1Color = player1Color
+            room.player2Color = player2Color
+
+            room.num_spectators = num_spectators
+            room.board = board
+            room.spectatorArray = spectatorArray
+            room.save(update_fields=["board", "turn"
+                                     "player1Color", "player2Color", "player1", "player2", "spectatorArray", "num_spectators"])
+            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+        # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LeaveRoom(APIView):
