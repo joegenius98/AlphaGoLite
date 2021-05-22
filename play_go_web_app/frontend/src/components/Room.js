@@ -1,13 +1,12 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Button from '@material-ui/core/Button';
-
+import LinearProgress from "@material-ui/core/LinearProgress";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,16 +35,18 @@ function leaveButtonPressed(props) {
 
 export default function Room(props) {
   const classes = useStyles();
-  const board = new godash.Board(19);
+  const [board, setBoard] = useState(new godash.Board(19));
   const annotations = [new godash.Coordinate(2, 2)];
+
+  var new_board = 0;
 
   function handleCoordinateClick(coordinate) {
     // http://duckpunch.github.io/godash/documentation/#coordinate
-    coordinate;
+    new_board = godash.addMove(board, coordinate, godash.BLACK);
+    setBoard(new_board);
+    console.log(new_board.toString());
     console.log(coordinate.toString());
   }
-
-  
 
   return (
     <div className={classes.root}>
@@ -58,40 +59,56 @@ export default function Room(props) {
           </Grid>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              <LinearProgress  variant="determinate" value={65} color="primary" />
-              <LinearProgress  variant="determinate" value={65} color="primary" />
+              <LinearProgress
+                variant="determinate"
+                value={65}
+                color="primary"
+              />
+              <LinearProgress
+                variant="determinate"
+                value={65}
+                color="primary"
+              />
             </Paper>
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
-            <Paper style={{ backgroundColor: "grey", color: "black",width:'61.5%'}}>
-                <Goban
-                  board={board}
-                  boardColor="#f4bc7c"
-                  annotations={annotations}
-                  onCoordinateClick={handleCoordinateClick}
-                />
-            </Paper>
-        </Grid>
-      </Grid>
-      <Grid container xs={12} sm={4}>
-        <Grid item xs={12} sm={12}>
-            <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              xs=12 sm=6
+            <Paper
+              style={{
+                backgroundColor: "grey",
+                color: "black",
+                width: "61.5%",
+              }}
+            >
+              <Goban
+                board={board}
+                boardColor="#f4bc7c"
+                annotations={annotations}
+                onCoordinateClick={handleCoordinateClick}
+              />
             </Paper>
           </Grid>
-          
+        </Grid>
+        <Grid container xs={12} sm={4}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
               xs=12 sm=6
             </Paper>
           </Grid>
-        
+
+          <Grid item xs={12} sm={12}>
+            <Paper style={{ backgroundColor: "grey", color: "black" }}>
+              xs=12 sm=6
+            </Paper>
+          </Grid>
+
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
               <Button
                 variant="contained"
                 color="primary"
-                onClick={()=>{leaveButtonPressed(props)}}
+                onClick={() => {
+                  leaveButtonPressed(props);
+                }}
               >
                 Leave Room
               </Button>
