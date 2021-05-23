@@ -44,13 +44,13 @@ class JoinRoom(APIView):
     Redirect Spectators
     if they want to join a room
     """
-    lookup_url_kwarg = 'code'
+    lookup_JSON_key = 'code'
 
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
 
-        code = request.data.get(self.lookup_url_kwarg)
+        code = request.data.get(self.lookup_JSON_key)
         if code != None:
             room_result = Room.objects.filter(code=code)
             if len(room_result) > 0:
