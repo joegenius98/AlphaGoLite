@@ -2,42 +2,103 @@ import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import FormControl from "@material-ui/core/FormControl";
 import { Link } from "react-router-dom";
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { makeStyles,withStyles } from '@material-ui/core/styles';
 
-export default class CreateRoomPage extends Component {
+const useStyles = makeStyles((theme) => ({
+  margin: {
+    margin: theme.spacing(1),
+  },
+}));
+const ColorButton = withStyles((theme) => ({
+  root: {
+    backgroundColor: "#000",
+    '&:hover': {
+      backgroundColor: "#fff",
+    },
+  },
+}))(Button);
+
+const NotColorButton = withStyles((theme) => ({
+  root: {
+    backgroundColor: "#fff",
+    '&:hover': {
+      backgroundColor: "#000",
+    },
+  },
+}))(Button);
+
+function CustomizedButtons(props) {
+  const classes = useStyles();
+
+  return (
+    <>
+      {!props.turn?(
+        <>
+          <Grid item xs={6}>
+            <NotColorButton onClick={()=>{props.change(true)}} variant="contained" color="primary" className={classes.margin}>
+              <svg width="100%" height="100%">
+                <circle cx="50%" cy="50%" r="10%" stroke="white" strokeWidth="4" fill="black" />
+              </svg>
+            </NotColorButton>        
+          </Grid>
+          <Grid item xs={6}>
+            <ColorButton onClick={()=>{props.change(false)}} variant="contained" color="primary" className={classes.margin}>
+              <svg width="100%" height="100%">
+                <circle cx="50%" cy="50%" r="10%" stroke="black" strokeWidth="4" fill="white" />
+              </svg>
+            </ColorButton>      
+          </Grid> 
+        </>
+      ):(
+        <>
+          <Grid item xs={6}>
+            <ColorButton onClick={()=>{props.change(true)}} variant="contained" color="primary" className={classes.margin}>
+              <svg width="100%" height="100%">
+                <circle cx="50%" cy="50%" r="10%" stroke="white" strokeWidth="4" fill="black" />
+              </svg>
+            </ColorButton>        
+          </Grid>
+          <Grid item xs={6}>
+            <NotColorButton onClick={()=>{props.change(false)}} variant="contained" color="primary" className={classes.margin}>
+              <svg width="100%" height="100%">
+                <circle cx="50%" cy="50%" r="10%" stroke="black" strokeWidth="4" fill="white" />
+              </svg>
+            </NotColorButton>      
+          </Grid> 
+        </>
+      )}
+      
+    </>
+  );
+}
+
+class CreateRoomPage extends Component {
   defaultVotes = 2;
-
   constructor(props) {
     super(props);
     this.state = {
-      guestCanPause: true,
-      votesToSkip: this.defaultVotes,
+      turn: true,
     };
 
     this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
-    this.handleVotesChange = this.handleVotesChange.bind(this);
-    this.handleGuestCanPauseChange = this.handleGuestCanPauseChange.bind(this);
+    this.handleTurnChange = this.handleTurnChange.bind(this);
   }
 
-  handleVotesChange(e) {
-    this.setState({
-      votesToSkip: e.target.value,
-    });
-  }
+  
 
-  handleGuestCanPauseChange(e) {
+  handleTurnChange(val) {
     this.setState({
-      guestCanPause: e.target.value === "true" ? true : false,
+      turn: val,
     });
   }
 
   handleRoomButtonPressed() {
+    /*
+    -Do we want the initial board to be created by the host in the frontend,
+    or do we want the board created in the backend? 
+    -Note: turn==true => host/player1 goes first
+    */
     var value = 0; // by default
     var myGrid = [...Array(19)].map(e => Array(19).fill(value));
     this.setState({board:myGrid})
@@ -45,8 +106,7 @@ export default class CreateRoomPage extends Component {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        votes_to_skip: this.state.votesToSkip,
-        guest_can_pause: this.state.guestCanPause,
+        turn: this.state.turn,
         board:JSON.stringify(myGrid),
       }),
     };
@@ -57,53 +117,44 @@ export default class CreateRoomPage extends Component {
 
   render() {
     return (
-      <Grid container spacing={1}>
+      <Grid container spacing={2}>
         <Grid item xs={12} align="center">
-          <Typography component="h4" variant="h4">
+          <Typography component="h4" variant="h4" >
             Create A Room
           </Typography>
         </Grid>
-        <Grid item xs={12} align="center">
-          <FormControl component="fieldset">
-            <FormHelperText>
-              <div align="center">Guest Control of Playback State</div>
-            </FormHelperText>
-            <RadioGroup
-              row
-              defaultValue="true"
-              onChange={this.handleGuestCanPauseChange}
-            >
-              <FormControlLabel
-                value="true"
-                control={<Radio color="primary" />}
-                label="Play/Pause"
-                labelPlacement="bottom"
-              />
-              <FormControlLabel
-                value="false"
-                control={<Radio color="secondary" />}
-                label="No Control"
-                labelPlacement="bottom"
-              />
-            </RadioGroup>
-          </FormControl>
+        
+        <Grid item xs={12} spacing={3} align="center">
+          <Grid container item xs={3} spacing={3} >   
+              <CustomizedButtons turn={this.state.turn} change={this.handleTurnChange}/>
+          </Grid>
+          <Grid container item xs={3} spacing={3} align="center">
+            <React.Fragment>
+              <Grid item xs={12}>
+                  {this.state.turn?(
+                    <Typography component="h6" variant="h6" >
+                      Black
+                    </Typography>):
+                    (
+                    <Typography component="h6" variant="h6" >
+                      White
+                    </Typography>
+                    )}
+              </Grid>
+         
+            </React.Fragment>
+          </Grid>
+
         </Grid>
+      
         <Grid item xs={12} align="center">
-          <FormControl>
-            <TextField
-              required={true}
-              type="number"
-              onChange={this.handleVotesChange}
-              defaultValue={this.defaultVotes}
-              inputProps={{
-                min: 1,
-                style: { textAlign: "center" },
-              }}
-            />
-            <FormHelperText>
-              <div align="center">Votes Required To Skip Song</div>
-            </FormHelperText>
-          </FormControl>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={this.handleRoomButtonPressed}
+          >
+            Play with AI
+          </Button>
         </Grid>
         <Grid item xs={12} align="center">
           <Button
@@ -111,7 +162,7 @@ export default class CreateRoomPage extends Component {
             variant="contained"
             onClick={this.handleRoomButtonPressed}
           >
-            Create A Room
+            Play against friends
           </Button>
         </Grid>
         <Grid item xs={12} align="center">
@@ -123,3 +174,4 @@ export default class CreateRoomPage extends Component {
     );
   }
 }
+export default CreateRoomPage;
