@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,useEffect  } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, responsiveFontSizes } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
@@ -36,16 +36,56 @@ function leaveButtonPressed(props) {
 export default function Room(props) {
   const classes = useStyles();
   const [board, setBoard] = useState(new godash.Board(19));
+  const [player1, setPlayer1]=useState("null");
+  const [player2, setPlayer2]=useState("null");
+  const [player1Color, setPlayer1Color]=useState("null");
+  const [player2Color, setPlayer2Color]=useState("null");
+  const [turn, setTurn]=useState(true);
+  const [tmpboard, settmpBoard]=useState("[]");
+
+  useEffect((props) => {
+    function getRoom() {
+      const requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      };
+      fetch("/api/get-room"+"?code="+window.location.pathname.substring(6, ), requestOptions)
+      .then((response) => 
+        response.json())
+      .then((responseJSON) => {
+          // do stuff with responseJSON here...
+          setPlayer1(responseJSON.player1);
+          // setPlayer2(responseJSON.player2);
+          // setPlayer1Color(responseJson.player1Color);
+          // setPlayer2Color(responseJSON.player2Color);
+          // settmpBoard(responseJSON.board);
+
+          console.log(player1);
+       });
+    };
+    getRoom();
+    return () => {
+      // function leaveRoom() {
+      //   const requestOptions = {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //   };
+      //   fetch("/api/leave-room", requestOptions).then((_response) => {
+      //   });
+      // }
+      // leaveRoom(props);
+    }
+  })
   const annotations = [new godash.Coordinate(2, 2)];
 
   var new_board = 0;
 
   const roomName= window.location.pathname;
 
-  const chatSocket = new WebSocket(`ws://`+window.location.host+`/ws/rooms/XYZ/`);
+  const chatSocket = new WebSocket(`ws://`+window.location.host+`/ws/rooms`+window.location.pathname.substring(5, )+`/`);
   chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    console.log(data.message);
+    console.log(data.player1);
   };
   
   chatSocket.onclose = function(e) {
@@ -55,7 +95,12 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     const message = "Tuna in the Sink";
     chatSocket.send(JSON.stringify({
-        'message': message
+      'player1': "Tuna",
+      'player2': "Tuna",
+      'player1Color': "Tuna",
+      'player2Color': "Tuna",
+      'turn': "True",
+      'board': "Tuna"
     }));
     // http://duckpunch.github.io/godash/documentation/#coordinate
     new_board = godash.addMove(board, coordinate, godash.BLACK);
