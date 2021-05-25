@@ -5,3 +5,4 @@ __pycache__/
 django_secrets.py
 main.js
 main.js.LICENSE.txt
+db.sqlite3
