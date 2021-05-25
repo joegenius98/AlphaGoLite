@@ -40,6 +40,20 @@ export default function Room(props) {
 
   var new_board = 0;
 
+  const roomName= window.location.pathname;
+
+  const chatSocket = new WebSocket(
+    'ws://'
+    + window.location.host
+    + '/api'
+    + roomName
+    + '/'
+  );
+  chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log(data.message);
+  };
+
   function handleCoordinateClick(coordinate) {
     // http://duckpunch.github.io/godash/documentation/#coordinate
     new_board = godash.addMove(board, coordinate, godash.BLACK);
@@ -47,6 +61,7 @@ export default function Room(props) {
     console.log(new_board.toString());
     console.log(coordinate.toString());
   }
+
 
   return (
     <div className={classes.root}>
