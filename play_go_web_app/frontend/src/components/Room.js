@@ -42,16 +42,14 @@ export default function Room(props) {
 
   const roomName= window.location.pathname;
 
-  const chatSocket = new WebSocket(
-    'ws://'
-    + window.location.host
-    + '/api'
-    + roomName
-    + '/'
-  );
+  const chatSocket = new WebSocket(`ws://`+window.location.host+`/ws/rooms/XYZ/`);
   chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     console.log(data.message);
+  };
+  
+  chatSocket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
   };
 
   function handleCoordinateClick(coordinate) {
