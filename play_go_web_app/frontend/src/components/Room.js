@@ -53,6 +53,10 @@ export default function Room(props) {
   };
 
   function handleCoordinateClick(coordinate) {
+    const message = "Tuna in the Sink";
+    chatSocket.send(JSON.stringify({
+        'message': message
+    }));
     // http://duckpunch.github.io/godash/documentation/#coordinate
     new_board = godash.addMove(board, coordinate, godash.BLACK);
     setBoard(new_board);
