@@ -3,26 +3,29 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { Link } from "react-router-dom";
-import { makeStyles,withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   margin: {
     margin: theme.spacing(1),
   },
 }));
+
+//black color
 const ColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#000",
-    '&:hover': {
+    "&:hover": {
       backgroundColor: "#fff",
     },
   },
 }))(Button);
 
+//white color
 const NotColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#fff",
-    '&:hover': {
+    "&:hover": {
       backgroundColor: "#000",
     },
   },
@@ -33,42 +36,98 @@ function CustomizedButtons(props) {
 
   return (
     <>
-      {!props.turn?(
+      {/* if it's player 1's turn,  */}
+      {!props.turn ? (
         <>
           <Grid item xs={6}>
-            <NotColorButton onClick={()=>{props.change(true)}} variant="contained" color="primary" className={classes.margin}>
+            <NotColorButton
+              onClick={() => {
+                props.change(true);
+              }}
+              variant="contained"
+              color="primary"
+              className={classes.margin}
+            >
               <svg width="100%" height="100%">
-                <circle cx="50%" cy="50%" r="10%" stroke="white" strokeWidth="4" fill="black" />
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="10%"
+                  stroke="white"
+                  strokeWidth="4"
+                  fill="black"
+                />
               </svg>
-            </NotColorButton>        
+            </NotColorButton>
           </Grid>
           <Grid item xs={6}>
-            <ColorButton onClick={()=>{props.change(false)}} variant="contained" color="primary" className={classes.margin}>
+            <ColorButton
+              onClick={() => {
+                props.change(false);
+              }}
+              variant="contained"
+              color="primary"
+              className={classes.margin}
+            >
               <svg width="100%" height="100%">
-                <circle cx="50%" cy="50%" r="10%" stroke="black" strokeWidth="4" fill="white" />
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="10%"
+                  stroke="black"
+                  strokeWidth="4"
+                  fill="white"
+                />
               </svg>
-            </ColorButton>      
-          </Grid> 
+            </ColorButton>
+          </Grid>
         </>
-      ):(
+      ) : (
         <>
           <Grid item xs={6}>
-            <ColorButton onClick={()=>{props.change(true)}} variant="contained" color="primary" className={classes.margin}>
+            <ColorButton
+              onClick={() => {
+                props.change(true);
+              }}
+              variant="contained"
+              color="primary"
+              className={classes.margin}
+            >
               <svg width="100%" height="100%">
-                <circle cx="50%" cy="50%" r="10%" stroke="white" strokeWidth="4" fill="black" />
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="10%"
+                  stroke="white"
+                  strokeWidth="4"
+                  fill="black"
+                />
               </svg>
-            </ColorButton>        
+            </ColorButton>
           </Grid>
           <Grid item xs={6}>
-            <NotColorButton onClick={()=>{props.change(false)}} variant="contained" color="primary" className={classes.margin}>
+            <NotColorButton
+              onClick={() => {
+                props.change(false);
+              }}
+              variant="contained"
+              color="primary"
+              className={classes.margin}
+            >
               <svg width="100%" height="100%">
-                <circle cx="50%" cy="50%" r="10%" stroke="black" strokeWidth="4" fill="white" />
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="10%"
+                  stroke="black"
+                  strokeWidth="4"
+                  fill="white"
+                />
               </svg>
-            </NotColorButton>      
-          </Grid> 
+            </NotColorButton>
+          </Grid>
         </>
       )}
-      
     </>
   );
 }
@@ -85,8 +144,6 @@ class CreateRoomPage extends Component {
     this.handleTurnChange = this.handleTurnChange.bind(this);
   }
 
-  
-
   handleTurnChange(val) {
     this.setState({
       turn: val,
@@ -100,14 +157,14 @@ class CreateRoomPage extends Component {
     -Note: turn==true => host/player1 goes first
     */
     var value = 0; // by default
-    var myGrid = [...Array(19)].map(e => Array(19).fill(value));
-    this.setState({board:myGrid})
+    var myGrid = [...Array(19)].map((e) => Array(19).fill(value));
+    this.setState({ board: myGrid });
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         turn: this.state.turn,
-        board:JSON.stringify(myGrid),
+        board: JSON.stringify(myGrid),
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -119,34 +176,35 @@ class CreateRoomPage extends Component {
     return (
       <Grid container spacing={2}>
         <Grid item xs={12} align="center">
-          <Typography component="h4" variant="h4" >
+          <Typography component="h4" variant="h4">
             Create A Room
           </Typography>
         </Grid>
-        
+
         <Grid item xs={12} spacing={3} align="center">
-          <Grid container item xs={3} spacing={3} >   
-              <CustomizedButtons turn={this.state.turn} change={this.handleTurnChange}/>
+          <Grid container item xs={3} spacing={3}>
+            <CustomizedButtons
+              turn={this.state.turn}
+              change={this.handleTurnChange}
+            />
           </Grid>
           <Grid container item xs={3} spacing={3} align="center">
             <React.Fragment>
               <Grid item xs={12}>
-                  {this.state.turn?(
-                    <Typography component="h6" variant="h6" >
-                      Black
-                    </Typography>):
-                    (
-                    <Typography component="h6" variant="h6" >
-                      White
-                    </Typography>
-                    )}
+                {this.state.turn ? (
+                  <Typography component="h6" variant="h6">
+                    Black
+                  </Typography>
+                ) : (
+                  <Typography component="h6" variant="h6">
+                    White
+                  </Typography>
+                )}
               </Grid>
-         
             </React.Fragment>
           </Grid>
-
         </Grid>
-      
+
         <Grid item xs={12} align="center">
           <Button
             color="primary"

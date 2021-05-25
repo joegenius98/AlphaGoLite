@@ -3,3 +3,7 @@
 node_modules/
 __pycache__/
 django_secrets.py
+play_go_web_app/db.sqlite3
+play_go_web_app/frontend/static/frontend
+play_go_web_app/frontend/static/frontend/main.js
+play_go_web_app/frontend/static/frontend/main.js.LICENSE.txt
