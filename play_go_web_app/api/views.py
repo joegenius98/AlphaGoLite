@@ -142,7 +142,7 @@ class CreateRoomView(APIView):
         if serializer.is_valid():
             # retrieve data from serializer
             turn = serializer.data.get('turn')
-            board = serializer.data.get('board')
+            # board = serializer.data.get('board')
 
             # # retrieve session key
             host = self.request.session.session_key
@@ -156,12 +156,12 @@ class CreateRoomView(APIView):
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
                 room.turn = turn
-                room.board = board
-                room.save(update_fields=["board", "turn"])
+                # room.board = board
+                room.save(update_fields=["turn"])
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host, turn=turn, board=board)
+                room = Room(host=host, turn=turn)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
