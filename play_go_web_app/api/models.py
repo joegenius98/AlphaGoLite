@@ -61,7 +61,7 @@ class Room(models.Model):
 
     # spectators
     spectatorArray = models.CharField(
-        max_length=275, unique=False, default="[]")
+        max_length=275, unique=False, default="".join(["0"] * 19 * 19))
     """
     Home Page
        /  \
