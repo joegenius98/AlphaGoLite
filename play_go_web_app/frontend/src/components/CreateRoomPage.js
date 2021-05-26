@@ -156,15 +156,15 @@ class CreateRoomPage extends Component {
     or do we want the board created in the backend? 
     -Note: turn==true => host/player1 goes first
     */
-    var value = 0; // by default
-    var myGrid = [...Array(19)].map((e) => Array(19).fill(value));
-    this.setState({ board: myGrid });
+    // var value = 0; // by default
+    // var myGrid = [...Array(19)].map((e) => Array(19).fill(value));
+    // this.setState({ board: myGrid });
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         turn: this.state.turn,
-        board: JSON.stringify(myGrid),
+        // board: JSON.stringify(myGrid),
       }),
     };
     fetch("/api/create-room", requestOptions)
