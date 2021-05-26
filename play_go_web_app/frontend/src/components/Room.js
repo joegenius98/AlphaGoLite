@@ -1,4 +1,4 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 
@@ -36,23 +36,26 @@ function leaveButtonPressed(props) {
 export default function Room(props) {
   const classes = useStyles();
   const [board, setBoard] = useState(new godash.Board(19));
-  const [player1, setPlayer1]=useState("null");
-  const [player2, setPlayer2]=useState("null");
-  const [player1Color, setPlayer1Color]=useState("null");
-  const [player2Color, setPlayer2Color]=useState("null");
-  const [turn, setTurn]=useState(true);
-  const [tmpboard, settmpBoard]=useState("[]");
+  const [player1, setPlayer1] = useState("null");
+  const [player2, setPlayer2] = useState("null");
+  const [player1Color, setPlayer1Color] = useState("null");
+  const [player2Color, setPlayer2Color] = useState("null");
+  const [turn, setTurn] = useState(true);
+  const [tmpboard, settmpBoard] = useState("[]");
+
+  const ROOM_CODE = window.location.pathname.substring(6);
 
   useEffect((props) => {
+    console.log("useEffect in use");
     function getRoom() {
       const requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       };
-      fetch("/api/get-room"+"?code="+window.location.pathname.substring(6, ), requestOptions)
-      .then((response) => 
-        response.json())
-      .then((responseJSON) => {
+      fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
+        .then((response) => response.json())
+        .then((responseJSON) => {
+          console.log("fetch method inside useEffect being used");
           // do stuff with responseJSON here...
           setPlayer1(responseJSON.player1);
           // setPlayer2(responseJSON.player2);
@@ -61,8 +64,8 @@ export default function Room(props) {
           // settmpBoard(responseJSON.board);
 
           console.log(player1);
-       });
-    };
+        });
+    }
     getRoom();
     return () => {
       // function leaveRoom() {
@@ -74,41 +77,49 @@ export default function Room(props) {
       //   });
       // }
       // leaveRoom(props);
-    }
-  })
+    };
+  });
   const annotations = [new godash.Coordinate(2, 2)];
 
   var new_board = 0;
 
-  const roomName= window.location.pathname;
+  // const roomName = window.location.pathname;
 
-  const chatSocket = new WebSocket(`ws://`+window.location.host+`/ws/rooms`+window.location.pathname.substring(5, )+`/`);
-  chatSocket.onmessage = function(e) {
+  const chatSocket = new WebSocket(
+    `ws://` + window.location.host + `/ws/rooms/` + ROOM_CODE + `/`
+  );
+  chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log(data.player1);
   };
-  
-  chatSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
+
+  chatSocket.onclose = function (e) {
+    console.error("Chat socket closed unexpectedly");
   };
 
   function handleCoordinateClick(coordinate) {
-    const message = "Tuna in the Sink";
-    chatSocket.send(JSON.stringify({
-      'player1': "Tuna",
-      'player2': "Tuna",
-      'player1Color': "Tuna",
-      'player2Color': "Tuna",
-      'turn': "True",
-      'board': "Tuna"
-    }));
+    chatSocket.send(
+      JSON.stringify({
+        player1: "Tuna",
+        player2: "Tuna",
+        player1Color: "Tuna",
+        player2Color: "Tuna",
+        turn: "True",
+        new_move: coordinate.toString(),
+      })
+    );
     // http://duckpunch.github.io/godash/documentation/#coordinate
-    new_board = godash.addMove(board, coordinate, godash.BLACK);
-    setBoard(new_board);
-    console.log(new_board.toString());
-    console.log(coordinate.toString());
-  }
 
+    try {
+      new_board = godash.addMove(board, coordinate, godash.BLACK);
+      setBoard(new_board);
+      console.log(new_board.toString());
+      console.log(coordinate.toString());
+    } catch (error) {
+      //error should only occur when clicking on a piece already on the board
+      console.log(error);
+    }
+  }
 
   return (
     <div className={classes.root}>
@@ -116,7 +127,7 @@ export default function Room(props) {
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              tmp
+              {player1}
             </Paper>
           </Grid>
           <Grid item xs={12} sm={12}>
