@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from .models import Room
 
+
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['uri']
@@ -31,10 +32,10 @@ class ChatConsumer(WebsocketConsumer):
         player2 = text_data_json['player2']
         player1Color = text_data_json['player1Color']
         player2Color = text_data_json['player2Color']
-        turn = True if text_data_json['turn']=="True" else False
+        turn = True if text_data_json['turn'] == "True" else False
         board = text_data_json['board']
 
-        code=self.room_name
+        code = self.room_name
         queryset = Room.objects.filter(code=code)
         room = queryset[0]
         room.player1 = player1
@@ -47,13 +48,13 @@ class ChatConsumer(WebsocketConsumer):
 
         room.board = board
         room.save(update_fields=["board", "turn",
-                                "player1Color", "player2Color", 
-                                "player1", "player2"])
+                                 "player1Color", "player2Color",
+                                 "player1", "player2"])
     # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
-                'type': 'chat_message',
+                'type': 'room_details',
                 'player1': room.player1,
                 'player2': room.player2,
                 'player1Color': room.player1Color,
@@ -64,7 +65,7 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     # Receive message from room group
-    def chat_message(self, event):
+    def room_details(self, event):
         player1 = event['player1']
         player2 = event['player2']
         player1Color = event['player1Color']
