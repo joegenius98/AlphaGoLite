@@ -33,7 +33,7 @@ class ChatConsumer(WebsocketConsumer):
         player1Color = text_data_json['player1Color']
         player2Color = text_data_json['player2Color']
         turn = True if text_data_json['turn'] == "True" else False
-        board = text_data_json['board']
+        new_move = text_data_json['new_move']
 
         code = self.room_name
         queryset = Room.objects.filter(code=code)
