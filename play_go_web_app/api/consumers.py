@@ -33,7 +33,8 @@ class ChatConsumer(WebsocketConsumer):
         player1Color = text_data_json['player1Color']
         player2Color = text_data_json['player2Color']
         turn = True if text_data_json['turn'] == "True" else False
-        new_move = text_data_json['new_move']
+        new_move_x = int(text_data_json['new_move_x'])
+        new_move_y = int(text_data_json['new_move_y'])
 
         code = self.room_name
         queryset = Room.objects.filter(code=code)
@@ -46,7 +47,10 @@ class ChatConsumer(WebsocketConsumer):
         room.player1Color = player1Color
         room.player2Color = player2Color
 
-        room.board = board
+        replace_idx = 19 * new_move_y + new_move_x
+        room.board = room.board[:replace_idx] + \
+            "1" + room.board[replace_idx+1:]
+
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",
                                  "player1", "player2"])
