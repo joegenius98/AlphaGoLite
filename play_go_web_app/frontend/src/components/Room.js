@@ -51,7 +51,21 @@ export default function Room(props) {
 
   const ROOM_CODE = window.location.pathname.substring(6);
 
+  const [chatSocket] = useState(
+    new WebSocket(
+      `ws://` + window.location.host + `/ws/rooms/` + ROOM_CODE + `/`
+    )
+  );
+
   useEffect((props) => {
+    chatSocket.onmessage = function (e) {
+      const data = JSON.parse(e.data);
+      console.log(data);
+    };
+
+    chatSocket.onclose = function (e) {
+      console.error("Chat socket closed unexpectedly");
+    };
     console.log("useEffect in use");
     function getRoom() {
       const requestOptions = {
@@ -92,42 +106,29 @@ export default function Room(props) {
 
   // const roomName = window.location.pathname;
 
-  const chatSocket = new WebSocket(
-    `ws://` + window.location.host + `/ws/rooms/` + ROOM_CODE + `/`
-  );
-  chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    // console.log(data.player1);
-  };
-
-  chatSocket.onclose = function (e) {
-    console.error("Chat socket closed unexpectedly");
-  };
-
   function handleCoordinateClick(coordinate) {
-    chatSocket.send(
-      JSON.stringify({
-        player1: player1,
-        player2: player2,
-        player1Color: player1Color,
-        player2Color: player2Color,
-        turn: !turn,
-        board: coordinate.x.toString() + coordinate.y.toString(),
-      })
-    );
-    // http://duckpunch.github.io/godash/documentation/#coordinate
-    new_board = godash.addMove(board, coordinate, godash.BLACK);
-    setBoard(new_board);
-  }
+    try {
+      new_board = godash.addMove(board, coordinate, godash.BLACK);
+      setBoard(new_board);
 
-  try {
-    new_board = godash.addMove(board, coordinate, godash.BLACK);
-    setBoard(new_board);
-    console.log(new_board.toString());
-    console.log(coordinate.toString());
-  } catch (error) {
-    //error should only occur when clicking on a piece already on the board
-    console.log(error);
+      chatSocket.send(
+        JSON.stringify({
+          player1: player1,
+          player2: player2,
+          player1Color: player1Color,
+          player2Color: player2Color,
+          turn: !turn,
+          new_move_x: coordinate.x,
+          new_move_y: coordinate.y,
+        })
+      );
+
+      console.log(new_board.toString());
+      console.log(coordinate.toString());
+    } catch (error) {
+      //error should only occur when clicking on a piece already on the board
+      console.log(error);
+    }
   }
 
   return (
