@@ -7,6 +7,7 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Button from "@material-ui/core/Button";
+import { FormControl, Input, InputLabel,FormHelperText } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,12 +56,11 @@ export default function Room(props) {
       .then((responseJSON) => {
           // do stuff with responseJSON here...
           setPlayer1(responseJSON.player1);
-          // setPlayer2(responseJSON.player2);
-          // setPlayer1Color(responseJson.player1Color);
-          // setPlayer2Color(responseJSON.player2Color);
+          setPlayer2(responseJSON.player2);
+          setPlayer1Color(responseJSON.player1Color);
+          setPlayer2Color(responseJSON.player2Color);
+          setTurn(responseJSON.turn)
           // settmpBoard(responseJSON.board);
-
-          console.log(player1);
        });
     };
     getRoom();
@@ -75,7 +75,7 @@ export default function Room(props) {
       // }
       // leaveRoom(props);
     }
-  })
+  },[])
   const annotations = [new godash.Coordinate(2, 2)];
 
   var new_board = 0;
@@ -85,7 +85,7 @@ export default function Room(props) {
   const chatSocket = new WebSocket(`ws://`+window.location.host+`/ws/rooms`+window.location.pathname.substring(5, )+`/`);
   chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    console.log(data.player1);
+    // console.log(data.player1);
   };
   
   chatSocket.onclose = function(e) {
@@ -95,18 +95,16 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     const message = "Tuna in the Sink";
     chatSocket.send(JSON.stringify({
-      'player1': "Tuna",
-      'player2': "Tuna",
-      'player1Color': "Tuna",
-      'player2Color': "Tuna",
-      'turn': "True",
-      'board': "Tuna"
+      'player1': player1,
+      'player2': player2,
+      'player1Color': player1Color,
+      'player2Color': player2Color,
+      'turn': !turn,
+      'board': coordinate.x.toString() + coordinate.y.toString()
     }));
     // http://duckpunch.github.io/godash/documentation/#coordinate
     new_board = godash.addMove(board, coordinate, godash.BLACK);
     setBoard(new_board);
-    console.log(new_board.toString());
-    console.log(coordinate.toString());
   }
 
 
@@ -115,8 +113,13 @@ export default function Room(props) {
       <Grid container spacing={24}>
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
-            <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              tmp
+            <Paper style={{ backgroundColor: "white", color: "black", width:"60%"}}>
+            <FormControl>
+              <InputLabel htmlFor="my-input">{player1}</InputLabel>
+              <Input id="my-input" aria-describedby="my-helper-text" />
+              <FormHelperText id="my-helper-text">Change your name here.</FormHelperText>
+            </FormControl>
+               
             </Paper>
           </Grid>
           <Grid item xs={12} sm={12}>
