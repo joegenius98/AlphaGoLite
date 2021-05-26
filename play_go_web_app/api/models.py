@@ -57,11 +57,12 @@ class Room(models.Model):
     # from JavaScript String -> Python list
     # and then,
     # from Python string -> JavaScript array
-    board = models.CharField(max_length=765, unique=False, default="[]")
+    board = models.CharField(
+        max_length=765, unique=False, default="0" * 19 * 19)
 
     # spectators
     spectatorArray = models.CharField(
-        max_length=275, unique=False, default="".join(["0"] * 19 * 19))
+        max_length=275, unique=False, default="[]")
     """
     Home Page
        /  \
