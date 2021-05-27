@@ -13,17 +13,17 @@ def generate_unique_code():
 
 
 def pickRandomColor():
-    return random.choice(["#6200EE", "#018786", "#B00020", "#FFDE03", "#0336FF", "#FF0266"])
+    return random.choice(["#4791db", "#e33371", "#81c784", "#e57373", "#ffb74d", "#64b5f6"])
 
 
 def randomNameP2():
-    return 'Anonymous ' + random.choice(["Deliverer", "Tank", "Koichi",
+    return 'TMP'+'Anonymous ' + random.choice(["Deliverer", "Tank", "Koichi",
                                          "Groundhog", "Armor", "Baller",
                                          "Collector", "Pencil", "Water", "Symmetry"]) + random.choice([str(x) for x in range(100)])
 
 
 def randomNameP1():
-    return 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
+    return 'TMP'+'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
                                          "Giraffe", "Armadillo", "Bear",
                                          "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
 
