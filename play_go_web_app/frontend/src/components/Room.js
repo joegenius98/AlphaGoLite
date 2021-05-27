@@ -91,21 +91,30 @@ export default function Room(props) {
     )
   );
 
+  roomSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    console.log(data);
+    setPlayer1(data.player1);
+    setPlayer2(data.player2);
+    setPlayer1Color(data.player1Color);
+    setPlayer2Color(data.player2Color);
+    setTurn(data.turn);
+
+    setBoard(
+      godash.addMove(
+        board,
+        new godash.Coordinate(data.new_move_x, data.new_move_y),
+        godash.BLACK
+      )
+    );
+  };
+
+  roomSocket.onclose = function (e) {
+    console.error("Chat socket closed unexpectedly");
+  };
+
   //called every time a user joins the room
   useEffect((props) => {
-    roomSocket.onmessage = function (e) {
-      const data = JSON.parse(e.data);
-      console.log(data);
-      setPlayer1(data.player1);
-      setPlayer2(data.player2);
-      setPlayer1Color(data.player1Color);
-      setPlayer2Color(data.player2Color);
-      setTurn(data.turn);
-    };
-
-    roomSocket.onclose = function (e) {
-      console.error("Chat socket closed unexpectedly");
-    };
     console.log("useEffect in use");
     function getRoom() {
       const requestOptions = {
@@ -117,8 +126,9 @@ export default function Room(props) {
         .then((responseJSON) => {
           // console.log("fetch method inside useEffect being used");
           // do stuff with responseJSON here...
-          var p1;
-          var p2;
+          //use let keyword inside of this function scope
+          let p1;
+          let p2;
           //if player 1 joins first (both players have "TMP" in front)
           if (responseJSON.player1.substring(0, 3) == "TMP") {
             //strip off "TMP" from player 1 and set it as current player
@@ -185,6 +195,7 @@ export default function Room(props) {
   // const roomName = window.location.pathname;
 
   function handleCoordinateClick(coordinate) {
+    console.log(coordinate);
     try {
       new_board = godash.addMove(board, coordinate, godash.BLACK);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
@@ -202,8 +213,8 @@ export default function Room(props) {
         })
       );
 
-      // console.log(new_board.toString());
-      // console.log(coordinate.toString());
+      console.log(new_board.toString());
+      console.log(coordinate.toString());
     } catch (error) {
       //error should only occur when clicking on a piece already on the board
       // later on: display error as a React component, maybe.
@@ -281,7 +292,7 @@ export default function Room(props) {
   }
   return (
     <div className={classes.root}>
-      <Grid container spacing={10}>
+      <Grid container spacing={24}>
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "white", color: "black" }}>
