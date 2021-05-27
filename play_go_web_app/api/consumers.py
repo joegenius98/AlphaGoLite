@@ -7,6 +7,7 @@ from .models import Room
 import logging
 logger = logging.getLogger(__name__)
 
+
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['uri']
@@ -33,9 +34,9 @@ class ChatConsumer(WebsocketConsumer):
         logger.error(str(text_data_json))
         player1 = text_data_json['player1']
         player2 = text_data_json['player2']
-        
+
         player1Color = text_data_json['player1Color']
-        
+
         player2Color = text_data_json['player2Color']
         turn = True if text_data_json['turn'] == "True" else False
         new_move_x = int(text_data_json['new_move_x'])
@@ -52,11 +53,11 @@ class ChatConsumer(WebsocketConsumer):
         room.player1Color = player1Color
         room.player2Color = player2Color
 
-        #We set the coordinates to -1
+        # We set the coordinates to -1
         # when we first join the room,
-        #but we want to change the name 
-        #without making a move
-        if new_move_x!=-1:
+        # but we want to change the name
+        # without making a move
+        if new_move_x != -1:
             replace_idx = 19 * new_move_y + new_move_x
             room.board = room.board[:replace_idx] + \
                 "1" + room.board[replace_idx+1:]
@@ -74,7 +75,9 @@ class ChatConsumer(WebsocketConsumer):
                 'player1Color': room.player1Color,
                 'player2Color': room.player2Color,
                 'turn': room.turn,
-                'board': room.board
+                'board': room.board,
+                'new_move_x': new_move_x,
+                'new_move_y': new_move_y
             }
         )
 
@@ -85,7 +88,10 @@ class ChatConsumer(WebsocketConsumer):
         player1Color = event['player1Color']
         player2Color = event['player2Color']
         turn = event['turn']
+
         board = event['board']
+        new_move_x = event['new_move_x']
+        new_move_y = event['new_move_y']
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({
@@ -94,5 +100,7 @@ class ChatConsumer(WebsocketConsumer):
             'player1Color': player1Color,
             'player2Color': player2Color,
             'turn': turn,
-            'board': board
+            'board': board,
+            'new_move_x': new_move_x,
+            'new_move_y': new_move_y
         }))
