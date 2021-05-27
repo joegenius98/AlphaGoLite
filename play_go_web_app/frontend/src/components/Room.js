@@ -137,7 +137,10 @@ export default function Room(props) {
 
           //Spectator Case
           else {
-            p1 = setCurPlayer("spectator");
+            p1 = responseJSON.player1;
+            p2 = responseJSON.player2;
+
+            setCurPlayer("spectator");
             setPlayer1(responseJSON.player1);
             setPlayer2(responseJSON.player2);
           }
