@@ -174,7 +174,7 @@ export default function Room(props) {
       // leaveRoom(props);
     };
   }, []);
-  const annotations = [new godash.Coordinate(2, 2)];
+  // const annotations = [new godash.Coordinate(2, 2)];
 
   var new_board = 0;
 
@@ -335,7 +335,7 @@ export default function Room(props) {
               <Goban
                 board={board}
                 boardColor="#f4bc7c"
-                annotations={annotations}
+                // annotations={annotations}
                 onCoordinateClick={handleCoordinateClick}
               />
             </Paper>
