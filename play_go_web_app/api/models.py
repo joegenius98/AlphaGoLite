@@ -50,6 +50,9 @@ class Room(models.Model):
     # turn == True ==> player 1 is going
     # turn == False ==> player 2 is going
     turn = models.BooleanField(null=False, default=False)
+
+    AI = models.BooleanField(null=False, default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     # state i.e. 2d array to store the go board
