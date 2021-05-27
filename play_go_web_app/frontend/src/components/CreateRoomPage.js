@@ -150,7 +150,7 @@ class CreateRoomPage extends Component {
     });
   }
 
-  handleRoomButtonPressed() {
+  handleRoomButtonPressed(AI) {
     /*
     -Do we want the initial board to be created by the host in the frontend,
     or do we want the board created in the backend? 
@@ -165,6 +165,7 @@ class CreateRoomPage extends Component {
       body: JSON.stringify({
         turn: this.state.turn,
         // board: JSON.stringify(myGrid),
+        AI:AI,
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -209,7 +210,7 @@ class CreateRoomPage extends Component {
           <Button
             color="primary"
             variant="contained"
-            onClick={this.handleRoomButtonPressed}
+            onClick={()=>this.handleRoomButtonPressed(true)}
           >
             Play with AI
           </Button>
@@ -218,7 +219,7 @@ class CreateRoomPage extends Component {
           <Button
             color="primary"
             variant="contained"
-            onClick={this.handleRoomButtonPressed}
+            onClick={()=>this.handleRoomButtonPressed(false)}
           >
             Play against friends
           </Button>

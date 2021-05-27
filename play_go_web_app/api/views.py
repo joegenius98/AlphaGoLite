@@ -4,7 +4,9 @@ from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSeriali
 from .models import Room
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+import random
+import logging
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -142,13 +144,16 @@ class CreateRoomView(APIView):
         if serializer.is_valid():
             # retrieve data from serializer
             turn = serializer.data.get('turn')
+
+            AI = serializer.data.get('AI')
+            
             # board = serializer.data.get('board')
 
             # # retrieve session key
             host = self.request.session.session_key
             # retrieve unique room from unique session key
             queryset = Room.objects.filter(host=host)
-
+            
             # if this user has already created a room
             if queryset.exists():
                 # simply update this room's settings
@@ -156,12 +161,13 @@ class CreateRoomView(APIView):
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
                 room.turn = turn
+                room.AI=AI
                 # room.board = board
-                room.save(update_fields=["turn"])
+                room.save(update_fields=["turn","AI"])
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host, turn=turn)
+                room = Room(host=host, turn=turn, AI=AI)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
