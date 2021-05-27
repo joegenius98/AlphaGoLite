@@ -18,9 +18,8 @@ import {
   Input,
   FormHelperText,
   InputBase,
-  Typography
+  Typography,
 } from "@material-ui/core";
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,8 +34,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
   },
   container: {
-    display: 'flex',
-    flexWrap: 'wrap',
+    display: "flex",
+    flexWrap: "wrap",
   },
   formControl: {
     margin: theme.spacing(1),
@@ -63,15 +62,15 @@ export default function Room(props) {
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
   const [turn, setTurn] = useState(true);
-  const [tmpboard, settmpBoard] = useState("[]");
-  const [curPlayer, setCurPlayer]=useState("null");
-  const[nameForm, setNameForm]=useState(true);
+  // const [tmpboard, settmpBoard] = useState("[]");
+  const [curPlayer, setCurPlayer] = useState("null");
+  const [nameForm, setNameForm] = useState(true);
   const ROOM_CODE = window.location.pathname.substring(6);
   const [open, setOpen] = React.useState(false);
-  const [age, setAge] = React.useState('');
+  const [age, setAge] = React.useState("");
 
   const handleChange = (event) => {
-    setAge(Number(event.target.value) || '');
+    setAge(Number(event.target.value) || "");
   };
 
   const handleClickOpen = () => {
@@ -88,6 +87,7 @@ export default function Room(props) {
     )
   );
 
+  //called every time a user joins the room
   useEffect((props) => {
     chatSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
@@ -102,7 +102,7 @@ export default function Room(props) {
     chatSocket.onclose = function (e) {
       console.error("Chat socket closed unexpectedly");
     };
-    console.log("useEffect in use");
+    // console.log("useEffect in use");
     function getRoom() {
       const requestOptions = {
         method: "GET",
@@ -115,24 +115,29 @@ export default function Room(props) {
           // do stuff with responseJSON here...
           var p1;
           var p2;
-          if (responseJSON.player1.substring(0,3)=="TMP"){
+          //if player 1 joins first (both players have "TMP" in front)
+          if (responseJSON.player1.substring(0, 3) == "TMP") {
+            //strip off "TMP" from player 1 and set it as current player
+            p1 = responseJSON.player1.substring(3);
+            p2 = responseJSON.player2;
             setCurPlayer("p1");
-            setPlayer1(responseJSON.player1.substring(3,));
-            setPlayer2(responseJSON.player2);
-            p1=responseJSON.player1.substring(3,);
-            p2= responseJSON.player2;
-            
+            setPlayer1(p1);
+            setPlayer2(p2);
           }
-          else if (responseJSON.player2.substring(0,3)=="TMP"){
+
+          //if player 2 joins next
+          else if (responseJSON.player2.substring(0, 3) == "TMP") {
+            //strip off "TMP" from player 2 and set it as current player
+            p1 = responseJSON.player1;
+            p2 = responseJSON.player2.substring(3);
             setCurPlayer("p2");
-            setPlayer1(responseJSON.player1);
-            setPlayer2(responseJSON.player2.substring(3,));
-            p1=responseJSON.player1;
-            p2= responseJSON.player2.substring(3,);
+            setPlayer1(p1);
+            setPlayer2(p2);
           }
-          else{
-            //TODO: Spectator Case
-            setCurPlayer("spectator");
+
+          //Spectator Case
+          else {
+            p1 = setCurPlayer("spectator");
             setPlayer1(responseJSON.player1);
             setPlayer2(responseJSON.player2);
           }
@@ -197,20 +202,18 @@ export default function Room(props) {
     }
   }
 
-  function changeName(e){
+  function changeName(e) {
     e.stopPropagation();
-    if (e.key === 'Enter') {
-      var p1=player1;
-      var p2=player2;
-      if (curPlayer=="p1"){
+    if (e.key === "Enter") {
+      var p1 = player1;
+      var p2 = player2;
+      if (curPlayer == "p1") {
         setPlayer1(e.target.value);
-        p1=e.target.value;
-      }
-      else if (curPlayer=="p2"){
+        p1 = e.target.value;
+      } else if (curPlayer == "p2") {
         setPlayer2(e.target.value);
-        p2=e.target.value;
-      }
-      else{
+        p2 = e.target.value;
+      } else {
         setPlayer1("TODO: Spectator Cases");
       }
       chatSocket.send(
@@ -228,27 +231,29 @@ export default function Room(props) {
     }
   }
 
-  function setName(e){
+  function setName(e) {
     e.stopPropagation();
     setNameForm(!nameForm);
   }
 
-  function setColor(rgb){
-    var p1 =player1Color;
-    var p2 =player2Color;
-    if (curPlayer=="p1"){
-      if (rgb!=player2Color){
-        p1=rgb;
-        setPlayer1Color(rgb);}      
-    }
-    else if (curPlayer=="p2"){
-      if (rgb!=player1Color){
-        p2=rgb;
-        setPlayer2Color(rgb);} 
-    }
-    else{
+  function setColor(rgb) {
+    var p1 = player1Color;
+    var p2 = player2Color;
+    if (curPlayer == "p1") {
+      if (rgb != player2Color) {
+        p1 = rgb;
+        setPlayer1Color(rgb);
+      }
+    } else if (curPlayer == "p2") {
+      if (rgb != player1Color) {
+        p2 = rgb;
+        setPlayer2Color(rgb);
+      }
+    } else {
       //TODO: Spectator Case
-      console.log("You Are considered a spectator. Change Color will not work for now :(");
+      console.log(
+        "You Are considered a spectator. Change Color will not work for now :("
+      );
     }
 
     chatSocket.send(
@@ -269,26 +274,24 @@ export default function Room(props) {
       <Grid container spacing={24}>
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
-            <Paper
-              style={{ backgroundColor: "white", color: "black"}}
-            >
+            <Paper style={{ backgroundColor: "white", color: "black" }}>
               <LinearProgress
                 variant="determinate"
                 value={65}
                 color="primary"
-                style={{height:'1em'}}
+                style={{ height: "1em" }}
               />
               <LinearProgress
                 variant="determinate"
                 value={65}
                 color="primary"
-              /> 
+              />
             </Paper>
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
-            {(player1&&player2&&player1Color&&player2Color&&curPlayer)?(
+            {player1 && player2 && player1Color && player2Color && curPlayer ? (
               <>
-                {(curPlayer!="p1")?(
+                {curPlayer != "p1" ? (
                   <Paper
                     style={{
                       backgroundColor: player1Color,
@@ -296,13 +299,11 @@ export default function Room(props) {
                       width: "61.5%",
                     }}
                   >
-                      <FormControl>   
-                        <Typography>
-                          {player1}
-                        </Typography>
-                      </FormControl>
-                    </Paper>
-                ):(
+                    <FormControl>
+                      <Typography>{player1}</Typography>
+                    </FormControl>
+                  </Paper>
+                ) : (
                   <Paper
                     style={{
                       backgroundColor: player2Color,
@@ -310,28 +311,24 @@ export default function Room(props) {
                       width: "61.5%",
                     }}
                   >
-                      <FormControl>   
-                        <Typography>
-                          {player2}
-                        </Typography>
-                      </FormControl>
-                    </Paper>
+                    <FormControl>
+                      <Typography>{player2}</Typography>
+                    </FormControl>
+                  </Paper>
                 )}
               </>
-            ):(
-              <Typography>
-                Loading..
-              </Typography>
+            ) : (
+              <Typography>Loading..</Typography>
             )}
-            
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
-            <Paper  style={{
+            <Paper
+              style={{
                 backgroundColor: "grey",
                 color: "black",
                 width: "61.5%",
               }}
-              >
+            >
               <Goban
                 board={board}
                 boardColor="#f4bc7c"
@@ -341,79 +338,83 @@ export default function Room(props) {
             </Paper>
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
-          {(player1&&player2&&player1Color&&player2Color&&curPlayer)?(
-            <>
-            {(curPlayer=="p1" )?(
-              <Paper
-              style={{
-                backgroundColor:  player1Color,
-                color: player1Color,
-                width: "61.5%",
-              }}
-              onClick={()=>(nameForm)?handleClickOpen():console.log("null")}
-            >
-                <FormControl>
-                    {(nameForm)? 
-                    (
-                      <InputBase
-                        defaultValue={player1}
-                        inputProps={{ 'aria-label': 'naked' }}
-                        onClick={setName}
-                    />
-                    ):
-                    (
-                    <>
-                      <InputLabel htmlFor="my-input">{player1}</InputLabel>
-                      <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
-                      <FormHelperText id="my-helper-text">
-                        Press ENTER to change your name. 
-                      </FormHelperText>
-                    </>
-                    )}
-                </FormControl>
-                
-              </Paper>
-            ):(
-              <Paper
-              style={{
-                backgroundColor:  player2Color,
-                color: player2Color,
-                width: "61.5%",
-              }}
-              onClick={()=>(nameForm)?handleClickOpen():null}
-            >
-                <FormControl>
-                  {(nameForm)? 
-                    (
-                      <InputBase
-                        defaultValue={(player2)}
-                        inputProps={{ 'aria-label': 'naked' }}
-                        onClick={setName}
-                    />
-                    ):
-                    (
-                    <>
-                      <InputLabel htmlFor="my-input">{player2}</InputLabel>
-                      <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
-                      <FormHelperText id="my-helper-text">
-                        Press ENTER to change your name.
-                      </FormHelperText>
-                    </>
-                    )}
-                </FormControl>
-              </Paper>
+            {player1 && player2 && player1Color && player2Color && curPlayer ? (
+              <>
+                {curPlayer == "p1" ? (
+                  <Paper
+                    style={{
+                      backgroundColor: player1Color,
+                      color: player1Color,
+                      width: "61.5%",
+                    }}
+                    onClick={() =>
+                      nameForm ? handleClickOpen() : console.log("null")
+                    }
+                  >
+                    <FormControl>
+                      {nameForm ? (
+                        <InputBase
+                          defaultValue={player1}
+                          inputProps={{ "aria-label": "naked" }}
+                          onClick={setName}
+                        />
+                      ) : (
+                        <>
+                          <InputLabel htmlFor="my-input">{player1}</InputLabel>
+                          <Input
+                            id="my-input"
+                            aria-describedby="my-helper-text"
+                            onKeyDown={changeName}
+                          />
+                          <FormHelperText id="my-helper-text">
+                            Press ENTER to change your name.
+                          </FormHelperText>
+                        </>
+                      )}
+                    </FormControl>
+                  </Paper>
+                ) : (
+                  <Paper
+                    style={{
+                      backgroundColor: player2Color,
+                      color: player2Color,
+                      width: "61.5%",
+                    }}
+                    onClick={() => (nameForm ? handleClickOpen() : null)}
+                  >
+                    <FormControl>
+                      {nameForm ? (
+                        <InputBase
+                          defaultValue={player2}
+                          inputProps={{ "aria-label": "naked" }}
+                          onClick={setName}
+                        />
+                      ) : (
+                        <>
+                          <InputLabel htmlFor="my-input">{player2}</InputLabel>
+                          <Input
+                            id="my-input"
+                            aria-describedby="my-helper-text"
+                            onKeyDown={changeName}
+                          />
+                          <FormHelperText id="my-helper-text">
+                            Press ENTER to change your name.
+                          </FormHelperText>
+                        </>
+                      )}
+                    </FormControl>
+                  </Paper>
+                )}
+              </>
+            ) : (
+              <Typography>Loading...</Typography>
             )}
-            </>
-            ):(<Typography>
-              Loading...
-            </Typography>)}
-            
           </Grid>
         </Grid>
         <Grid container xs={12} sm={4}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
-            {player1Color}
+              {player1Color}
             </Paper>
           </Grid>
 
@@ -442,38 +443,61 @@ export default function Room(props) {
       <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
         <DialogTitle>Pick A Color</DialogTitle>
         <DialogContent>
-        <Grid container spacing={1}>
+          <Grid container spacing={1}>
             <Grid container item xs={6} spacing={3}>
               <Grid item item xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#4791db"}} onClick={()=>setColor("#4791db")}>
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#4791db" }}
+                  onClick={() => setColor("#4791db")}
+                >
                   #4791db
                 </Paper>
               </Grid>
               <Grid item item xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#e33371" }} onClick={()=>setColor("#e33371")}>
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#e33371" }}
+                  onClick={() => setColor("#e33371")}
+                >
                   #e33371
                 </Paper>
               </Grid>
               <Grid item item xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#81c784" }} onClick={()=>setColor("#81c784")}>
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#81c784" }}
+                  onClick={() => setColor("#81c784")}
+                >
                   #81c784
                 </Paper>
               </Grid>
-              
             </Grid>
             <Grid container item xs={6} spacing={3}>
               <Grid item className={classes.paper} item xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#e57373"}} onClick={()=>setColor("#e57373")}>
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#e57373" }}
+                  onClick={() => setColor("#e57373")}
+                >
                   #e57373
                 </Paper>
               </Grid>
               <Grid item className={classes.paper} xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#ffb74d"}} onClick={()=>setColor("#ffb74d")}>
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#ffb74d" }}
+                  onClick={() => setColor("#ffb74d")}
+                >
                   #ffb74d
                 </Paper>
               </Grid>
               <Grid item className={classes.paper} xs={12} spacing={3}>
-                <Paper className={classes.paper} style={{ backgroundColor: "#64b5f6"}} onClick={()=>setColor("#64b5f6")}> 
+                <Paper
+                  className={classes.paper}
+                  style={{ backgroundColor: "#64b5f6" }}
+                  onClick={() => setColor("#64b5f6")}
+                >
                   #64b5f6
                 </Paper>
               </Grid>
