@@ -44,6 +44,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function leaveButtonPressed(props) {
+  console.log("Here are the props for leaveButtonPressed:");
+  console.log(props);
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -87,12 +89,15 @@ export default function Room(props) {
   // We assume this is because this React component gets re-rendered multiple times (6 times, probably)
   // when a user enter this room.
   const [roomSocket] = useState(
-    new WebSocket(
-      `ws://` + window.location.host + `/ws/rooms/` + ROOM_CODE + `/`
-    )
+    new WebSocket(`ws://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
   );
 
+  // const roomSocket = new WebSocket(
+  //   "ws://" + window.location.host + "/ws/rooms/" + ROOM_CODE + "/"
+  // );
+
   roomSocket.onmessage = function (e) {
+    console.log("RoomSocket onmessage running");
     const data = JSON.parse(e.data);
     console.log(data);
     setPlayer1(data.player1);
@@ -101,13 +106,15 @@ export default function Room(props) {
     setPlayer2Color(data.player2Color);
     setTurn(data.turn);
 
-    setBoard(
-      godash.addMove(
-        board,
-        new godash.Coordinate(data.new_move_x, data.new_move_y),
-        godash.BLACK
-      )
-    );
+    if (data.new_move_x != -1) {
+      setBoard(
+        godash.addMove(
+          board,
+          new godash.Coordinate(data.new_move_x, data.new_move_y),
+          godash.BLACK
+        )
+      );
+    }
   };
 
   roomSocket.onclose = function (e) {
@@ -197,7 +204,8 @@ export default function Room(props) {
   // const roomName = window.location.pathname;
 
   function handleCoordinateClick(coordinate) {
-    console.log(coordinate);
+    //was here for debugging purposes
+    // console.log(coordinate);
     try {
       new_board = godash.addMove(board, coordinate, godash.BLACK);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
@@ -215,6 +223,7 @@ export default function Room(props) {
         })
       );
 
+      console.log("Board stats under handleCoordinateClick");
       console.log(new_board.toString());
       console.log(coordinate.toString());
     } catch (error) {
