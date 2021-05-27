@@ -67,7 +67,7 @@ export default function Room(props) {
   const [nameForm, setNameForm] = useState(true);
   const ROOM_CODE = window.location.pathname.substring(6);
   const [open, setOpen] = React.useState(false);
-  const [AI, setAI]= useState(false);
+  const [AI, setAI] = useState(false);
   const [age, setAge] = React.useState("");
 
   const handleChange = (event) => {
@@ -323,7 +323,10 @@ export default function Room(props) {
                     }}
                   >
                     <FormControl>
-                      <Typography>{player1}{"🗿"}</Typography>
+                      <Typography>
+                        {player1}
+                        {"🗿"}
+                      </Typography>
                     </FormControl>
                   </Paper>
                 ) : (
@@ -335,7 +338,12 @@ export default function Room(props) {
                     }}
                   >
                     <FormControl>
-                      <Typography>{(player2.substr(0,3)=="TMP" && !AI)?("Waiting for Opponent to Join..."):(player2)} {AI?("🤖"):("🗿")}</Typography>
+                      <Typography>
+                        {player2.substr(0, 3) == "TMP" && !AI
+                          ? "Waiting for Opponent to Join..."
+                          : player2}{" "}
+                        {AI ? "🤖" : "🗿"}
+                      </Typography>
                     </FormControl>
                   </Paper>
                 )}
