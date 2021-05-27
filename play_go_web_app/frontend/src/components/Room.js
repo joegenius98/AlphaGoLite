@@ -81,7 +81,11 @@ export default function Room(props) {
     setOpen(false);
   };
 
-  const [chatSocket] = useState(
+  // roomSocket uses useState because otherwise,
+  // the same room would possess six sockets instead of one. (seen by console logging)
+  // We assume this is because this React component gets re-rendered multiple times (6 times, probably)
+  // when a user enter this room.
+  const [roomSocket] = useState(
     new WebSocket(
       `ws://` + window.location.host + `/ws/rooms/` + ROOM_CODE + `/`
     )
@@ -89,7 +93,7 @@ export default function Room(props) {
 
   //called every time a user joins the room
   useEffect((props) => {
-    chatSocket.onmessage = function (e) {
+    roomSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
       console.log(data);
       setPlayer1(data.player1);
@@ -99,10 +103,10 @@ export default function Room(props) {
       setTurn(data.turn);
     };
 
-    chatSocket.onclose = function (e) {
+    roomSocket.onclose = function (e) {
       console.error("Chat socket closed unexpectedly");
     };
-    // console.log("useEffect in use");
+    console.log("useEffect in use");
     function getRoom() {
       const requestOptions = {
         method: "GET",
@@ -111,7 +115,7 @@ export default function Room(props) {
       fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
         .then((response) => response.json())
         .then((responseJSON) => {
-          console.log("fetch method inside useEffect being used");
+          // console.log("fetch method inside useEffect being used");
           // do stuff with responseJSON here...
           var p1;
           var p2;
@@ -148,7 +152,7 @@ export default function Room(props) {
           setPlayer2Color(responseJSON.player2Color);
           setTurn(responseJSON.turn);
 
-          chatSocket.send(
+          roomSocket.send(
             JSON.stringify({
               player1: p1,
               player2: p2,
@@ -183,9 +187,10 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     try {
       new_board = godash.addMove(board, coordinate, godash.BLACK);
+      // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
 
-      chatSocket.send(
+      roomSocket.send(
         JSON.stringify({
           player1: player1,
           player2: player2,
@@ -197,10 +202,12 @@ export default function Room(props) {
         })
       );
 
-      console.log(new_board.toString());
-      console.log(coordinate.toString());
+      // console.log(new_board.toString());
+      // console.log(coordinate.toString());
     } catch (error) {
       //error should only occur when clicking on a piece already on the board
+      // later on: display error as a React component, maybe.
+      //but we don't want to break the flow for those who are more experienced.
       console.log(error);
     }
   }
@@ -219,7 +226,7 @@ export default function Room(props) {
       } else {
         setPlayer1("TODO: Spectator Cases");
       }
-      chatSocket.send(
+      roomSocket.send(
         JSON.stringify({
           player1: p1,
           player2: p2,
@@ -259,7 +266,7 @@ export default function Room(props) {
       );
     }
 
-    chatSocket.send(
+    roomSocket.send(
       JSON.stringify({
         player1: player1,
         player2: player2,
@@ -274,7 +281,7 @@ export default function Room(props) {
   }
   return (
     <div className={classes.root}>
-      <Grid container spacing={24}>
+      <Grid container spacing={10}>
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "white", color: "black" }}>
