@@ -13,7 +13,7 @@ def generate_unique_code():
 
 
 def pickRandomColor():
-    return random.choice(["#6200EE", "#018786", "#B00020", "#FFDE03", "#0336FF", "#FF0266"])
+    return random.choice(["#4791db", "#e33371", "#81c784", "#e57373", "#ffb74d", "#64b5f6"])
 
 
 def randomNameP2():

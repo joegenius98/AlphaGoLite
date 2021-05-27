@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
-import { makeStyles, responsiveFontSizes } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import Button from "@material-ui/core/Button";
+import { makeStyles } from "@material-ui/core/styles";
 import {
+  Button,
+  LinearProgress,
+  Paper,
+  Grid,
+  Select,
   FormControl,
-  Input,
+  MenuItem,
   InputLabel,
+  DialogTitle,
+  DialogContent,
+  Dialog,
+  DialogActions,
+  Input,
   FormHelperText,
+  InputBase,
+  Typography
 } from "@material-ui/core";
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: "red",
+    backgroundColor: "white",
 
     minHeight: "1000px",
   },
@@ -24,6 +33,14 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     textAlign: "center",
     color: theme.palette.text.secondary,
+  },
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
   },
 }));
 
@@ -47,8 +64,23 @@ export default function Room(props) {
   const [player2Color, setPlayer2Color] = useState("null");
   const [turn, setTurn] = useState(true);
   const [tmpboard, settmpBoard] = useState("[]");
-  const [curPlayer, setCurPlayer]=useState("Null")
+  const [curPlayer, setCurPlayer]=useState("null");
+  const[nameForm, setNameForm]=useState(true);
   const ROOM_CODE = window.location.pathname.substring(6);
+  const [open, setOpen] = React.useState(false);
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(Number(event.target.value) || '');
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const [chatSocket] = useState(
     new WebSocket(
@@ -166,6 +198,7 @@ export default function Room(props) {
   }
 
   function changeName(e){
+    e.stopPropagation();
     if (e.key === 'Enter') {
       var p1=player1;
       var p2=player2;
@@ -191,51 +224,114 @@ export default function Room(props) {
           new_move_y: -1,
         })
       );
+      setNameForm(!nameForm);
     }
   }
 
+  function setName(e){
+    e.stopPropagation();
+    setNameForm(!nameForm);
+  }
+
+  function setColor(rgb){
+    var p1 =player1Color;
+    var p2 =player2Color;
+    if (curPlayer=="p1"){
+      if (rgb!=player2Color){
+        p1=rgb;
+        setPlayer1Color(rgb);}      
+    }
+    else if (curPlayer=="p2"){
+      if (rgb!=player1Color){
+        p2=rgb;
+        setPlayer2Color(rgb);} 
+    }
+    else{
+      //TODO: Spectator Case
+      console.log("You Are considered a spectator. Change Color will not work for now :(");
+    }
+
+    chatSocket.send(
+      JSON.stringify({
+        player1: player1,
+        player2: player2,
+        player1Color: p1,
+        player2Color: p2,
+        turn: !turn,
+        new_move_x: -1,
+        new_move_y: -1,
+      })
+    );
+    handleClose();
+  }
   return (
     <div className={classes.root}>
       <Grid container spacing={24}>
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
             <Paper
-              style={{ backgroundColor: "white", color: "black", width: "60%" }}
+              style={{ backgroundColor: "white", color: "black"}}
             >
-              <div>
-                Player1 Name: {player1}
-              </div>
-              <FormControl>
-                <InputLabel htmlFor="my-input">{player1}</InputLabel>
-                <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
-                <FormHelperText id="my-helper-text">
-                  Press ENTER to change your name.
-                </FormHelperText>
-              </FormControl>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={12}>
-            <Paper style={{ backgroundColor: "grey", color: "black" }}>
               <LinearProgress
                 variant="determinate"
                 value={65}
                 color="primary"
+                style={{height:'1em'}}
               />
               <LinearProgress
                 variant="determinate"
                 value={65}
                 color="primary"
-              />
+              /> 
             </Paper>
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
-            <Paper
-              style={{
+            {(player1&&player2&&player1Color&&player2Color&&curPlayer)?(
+              <>
+                {(curPlayer!="p1")?(
+                  <Paper
+                    style={{
+                      backgroundColor: player1Color,
+                      color: "black",
+                      width: "61.5%",
+                    }}
+                  >
+                      <FormControl>   
+                        <Typography>
+                          {player1}
+                        </Typography>
+                      </FormControl>
+                    </Paper>
+                ):(
+                  <Paper
+                    style={{
+                      backgroundColor: player2Color,
+                      color: "black",
+                      width: "61.5%",
+                    }}
+                  >
+                      <FormControl>   
+                        <Typography>
+                          {player2}
+                        </Typography>
+                      </FormControl>
+                    </Paper>
+                )}
+              </>
+            ):(
+              <Typography>
+                Loading..
+              </Typography>
+            )}
+            
+          </Grid>
+          <Grid container justify="center" xs={12} sm={12}>
+            <Paper  style={{
                 backgroundColor: "grey",
                 color: "black",
                 width: "61.5%",
               }}
-            >
+              >
               <Goban
                 board={board}
                 boardColor="#f4bc7c"
@@ -244,17 +340,86 @@ export default function Room(props) {
               />
             </Paper>
           </Grid>
+          <Grid container justify="center" xs={12} sm={12}>
+          {(player1&&player2&&player1Color&&player2Color&&curPlayer)?(
+            <>
+            {(curPlayer=="p1" )?(
+              <Paper
+              style={{
+                backgroundColor:  player1Color,
+                color: player1Color,
+                width: "61.5%",
+              }}
+              onClick={()=>(nameForm)?handleClickOpen():console.log("null")}
+            >
+                <FormControl>
+                    {(nameForm)? 
+                    (
+                      <InputBase
+                        defaultValue={player1}
+                        inputProps={{ 'aria-label': 'naked' }}
+                        onClick={setName}
+                    />
+                    ):
+                    (
+                    <>
+                      <InputLabel htmlFor="my-input">{player1}</InputLabel>
+                      <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
+                      <FormHelperText id="my-helper-text">
+                        Press ENTER to change your name. 
+                      </FormHelperText>
+                    </>
+                    )}
+                </FormControl>
+                
+              </Paper>
+            ):(
+              <Paper
+              style={{
+                backgroundColor:  player2Color,
+                color: player2Color,
+                width: "61.5%",
+              }}
+              onClick={()=>(nameForm)?handleClickOpen():null}
+            >
+                <FormControl>
+                  {(nameForm)? 
+                    (
+                      <InputBase
+                        defaultValue={(player2)}
+                        inputProps={{ 'aria-label': 'naked' }}
+                        onClick={setName}
+                    />
+                    ):
+                    (
+                    <>
+                      <InputLabel htmlFor="my-input">{player2}</InputLabel>
+                      <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
+                      <FormHelperText id="my-helper-text">
+                        Press ENTER to change your name.
+                      </FormHelperText>
+                    </>
+                    )}
+                </FormControl>
+              </Paper>
+            )}
+            </>
+            ):(<Typography>
+              Loading...
+            </Typography>)}
+            
+          </Grid>
         </Grid>
         <Grid container xs={12} sm={4}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              xs=12 sm=6
+            {player1Color}
             </Paper>
           </Grid>
 
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "grey", color: "black" }}>
-              xs=12 sm=6
+              sa
             </Paper>
           </Grid>
 
@@ -273,6 +438,57 @@ export default function Room(props) {
           </Grid>
         </Grid>
       </Grid>
+
+      <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+        <DialogTitle>Pick A Color</DialogTitle>
+        <DialogContent>
+        <Grid container spacing={1}>
+            <Grid container item xs={6} spacing={3}>
+              <Grid item item xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#4791db"}} onClick={()=>setColor("#4791db")}>
+                  #4791db
+                </Paper>
+              </Grid>
+              <Grid item item xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#e33371" }} onClick={()=>setColor("#e33371")}>
+                  #e33371
+                </Paper>
+              </Grid>
+              <Grid item item xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#81c784" }} onClick={()=>setColor("#81c784")}>
+                  #81c784
+                </Paper>
+              </Grid>
+              
+            </Grid>
+            <Grid container item xs={6} spacing={3}>
+              <Grid item className={classes.paper} item xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#e57373"}} onClick={()=>setColor("#e57373")}>
+                  #e57373
+                </Paper>
+              </Grid>
+              <Grid item className={classes.paper} xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#ffb74d"}} onClick={()=>setColor("#ffb74d")}>
+                  #ffb74d
+                </Paper>
+              </Grid>
+              <Grid item className={classes.paper} xs={12} spacing={3}>
+                <Paper className={classes.paper} style={{ backgroundColor: "#64b5f6"}} onClick={()=>setColor("#64b5f6")}> 
+                  #64b5f6
+                </Paper>
+              </Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
