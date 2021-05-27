@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
-
 import { makeStyles, responsiveFontSizes } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
@@ -42,13 +41,13 @@ function leaveButtonPressed(props) {
 export default function Room(props) {
   const classes = useStyles();
   const [board, setBoard] = useState(new godash.Board(19));
-  const [player1, setPlayer1] = useState("null");
-  const [player2, setPlayer2] = useState("null");
+  const [player1, setPlayer1] = useState("");
+  const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
   const [turn, setTurn] = useState(true);
   const [tmpboard, settmpBoard] = useState("[]");
-
+  const [curPlayer, setCurPlayer]=useState("Null")
   const ROOM_CODE = window.location.pathname.substring(6);
 
   const [chatSocket] = useState(
@@ -61,6 +60,11 @@ export default function Room(props) {
     chatSocket.onmessage = function (e) {
       const data = JSON.parse(e.data);
       console.log(data);
+      setPlayer1(data.player1);
+      setPlayer2(data.player2);
+      setPlayer1Color(data.player1Color);
+      setPlayer2Color(data.player2Color);
+      setTurn(data.turn);
     };
 
     chatSocket.onclose = function (e) {
@@ -77,14 +81,44 @@ export default function Room(props) {
         .then((responseJSON) => {
           console.log("fetch method inside useEffect being used");
           // do stuff with responseJSON here...
-          setPlayer1(responseJSON.player1);
-          setPlayer2(responseJSON.player2);
+          var p1;
+          var p2;
+          if (responseJSON.player1.substring(0,3)=="TMP"){
+            setCurPlayer("p1");
+            setPlayer1(responseJSON.player1.substring(3,));
+            setPlayer2(responseJSON.player2);
+            p1=responseJSON.player1.substring(3,);
+            p2= responseJSON.player2;
+            
+          }
+          else if (responseJSON.player2.substring(0,3)=="TMP"){
+            setCurPlayer("p2");
+            setPlayer1(responseJSON.player1);
+            setPlayer2(responseJSON.player2.substring(3,));
+            p1=responseJSON.player1;
+            p2= responseJSON.player2.substring(3,);
+          }
+          else{
+            //TODO: Spectator Case
+            setCurPlayer("spectator");
+            setPlayer1(responseJSON.player1);
+            setPlayer2(responseJSON.player2);
+          }
           setPlayer1Color(responseJSON.player1Color);
           setPlayer2Color(responseJSON.player2Color);
           setTurn(responseJSON.turn);
-          // settmpBoard(responseJSON.board);
 
-          console.log(player1);
+          chatSocket.send(
+            JSON.stringify({
+              player1: p1,
+              player2: p2,
+              player1Color: responseJSON.player1Color,
+              player2Color: responseJSON.player2Color,
+              turn: responseJSON.turn,
+              new_move_x: -1,
+              new_move_y: -1,
+            })
+          );
         });
     }
     getRoom();
@@ -131,6 +165,35 @@ export default function Room(props) {
     }
   }
 
+  function changeName(e){
+    if (e.key === 'Enter') {
+      var p1=player1;
+      var p2=player2;
+      if (curPlayer=="p1"){
+        setPlayer1(e.target.value);
+        p1=e.target.value;
+      }
+      else if (curPlayer=="p2"){
+        setPlayer2(e.target.value);
+        p2=e.target.value;
+      }
+      else{
+        setPlayer1("TODO: Spectator Cases");
+      }
+      chatSocket.send(
+        JSON.stringify({
+          player1: p1,
+          player2: p2,
+          player1Color: player1Color,
+          player2Color: player2Color,
+          turn: !turn,
+          new_move_x: -1,
+          new_move_y: -1,
+        })
+      );
+    }
+  }
+
   return (
     <div className={classes.root}>
       <Grid container spacing={24}>
@@ -139,11 +202,14 @@ export default function Room(props) {
             <Paper
               style={{ backgroundColor: "white", color: "black", width: "60%" }}
             >
+              <div>
+                Player1 Name: {player1}
+              </div>
               <FormControl>
                 <InputLabel htmlFor="my-input">{player1}</InputLabel>
-                <Input id="my-input" aria-describedby="my-helper-text" />
+                <Input id="my-input" aria-describedby="my-helper-text" onKeyDown={changeName}/>
                 <FormHelperText id="my-helper-text">
-                  Change your name here.
+                  Press ENTER to change your name.
                 </FormHelperText>
               </FormControl>
             </Paper>

@@ -1,9 +1,11 @@
 # chat/consumers.py
+from cmath import log
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from .models import Room
-
+import logging
+logger = logging.getLogger(__name__)
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -28,9 +30,12 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        logger.error(str(text_data_json))
         player1 = text_data_json['player1']
         player2 = text_data_json['player2']
+        
         player1Color = text_data_json['player1Color']
+        
         player2Color = text_data_json['player2Color']
         turn = True if text_data_json['turn'] == "True" else False
         new_move_x = int(text_data_json['new_move_x'])
@@ -47,9 +52,14 @@ class ChatConsumer(WebsocketConsumer):
         room.player1Color = player1Color
         room.player2Color = player2Color
 
-        replace_idx = 19 * new_move_y + new_move_x
-        room.board = room.board[:replace_idx] + \
-            "1" + room.board[replace_idx+1:]
+        #We set the coordinates to -1
+        # when we first join the room,
+        #but we want to change the name 
+        #without making a move
+        if new_move_x!=-1:
+            replace_idx = 19 * new_move_y + new_move_x
+            room.board = room.board[:replace_idx] + \
+                "1" + room.board[replace_idx+1:]
 
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",

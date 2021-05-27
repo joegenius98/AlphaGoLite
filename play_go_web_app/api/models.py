@@ -17,13 +17,13 @@ def pickRandomColor():
 
 
 def randomNameP2():
-    return 'Anonymous ' + random.choice(["Deliverer", "Tank", "Koichi",
+    return 'TMP'+'Anonymous ' + random.choice(["Deliverer", "Tank", "Koichi",
                                          "Groundhog", "Armor", "Baller",
                                          "Collector", "Pencil", "Water", "Symmetry"]) + random.choice([str(x) for x in range(100)])
 
 
 def randomNameP1():
-    return 'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
+    return 'TMP'+'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
                                          "Giraffe", "Armadillo", "Bear",
                                          "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
 
