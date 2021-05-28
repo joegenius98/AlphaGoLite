@@ -121,6 +121,20 @@ export default function Room(props) {
     console.error("Chat socket closed unexpectedly");
   };
 
+  function getBoard(boardStr) {
+    let toRet = new godash.Board(19);
+    for (let i in boardStr) {
+      if (boardStr[i] == "1")
+        toRet = godash.addMove(
+          toRet,
+          new godash.Coordinate(i % 19, Math.floor(i / 19)),
+          godash.BLACK
+        );
+    }
+
+    return toRet;
+  }
+
   //called every time a user joins the room
   useEffect((props) => {
     console.log("useEffect in use");
@@ -157,7 +171,7 @@ export default function Room(props) {
             setPlayer2(p2);
           }
 
-          //Spectator Case
+          //Spectator Case (first two people/players have joined already -- so now anyone who joins is a spectator)
           else {
             p1 = responseJSON.player1;
             p2 = responseJSON.player2;
@@ -166,8 +180,15 @@ export default function Room(props) {
             setPlayer1(responseJSON.player1);
             setPlayer2(responseJSON.player2);
           }
+
+          //render the player colors onto screen
           setPlayer1Color(responseJSON.player1Color);
           setPlayer2Color(responseJSON.player2Color);
+
+          //render the board
+          setBoard(getBoard(responseJSON.board));
+
+          // set to whoever's turn it is at the moment
           setTurn(responseJSON.turn);
           setAI(responseJSON.AI);
 
