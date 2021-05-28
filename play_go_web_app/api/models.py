@@ -18,14 +18,14 @@ def pickRandomColor():
 
 def randomNameP2():
     return 'TMP'+'Anonymous ' + random.choice(["Deliverer", "Tank", "Koichi",
-                                         "Groundhog", "Armor", "Baller",
-                                         "Collector", "Pencil", "Water", "Symmetry"]) + random.choice([str(x) for x in range(100)])
+                                               "Groundhog", "Armor", "Baller",
+                                               "Collector", "Pencil", "Water", "Symmetry"]) + random.choice([str(x) for x in range(100)])
 
 
 def randomNameP1():
     return 'TMP'+'Anonymous ' + random.choice(["Duck", "Tuna", "Koala",
-                                         "Giraffe", "Armadillo", "Bear",
-                                         "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
+                                               "Giraffe", "Armadillo", "Bear",
+                                               "Cheetah", "Penguin", "Whale", "Serpent"]) + random.choice([str(x) for x in range(100)])
 
 
 class Room(models.Model):
@@ -51,15 +51,17 @@ class Room(models.Model):
     # turn == False ==> player 2 is going
     turn = models.BooleanField(null=False, default=False)
 
+    # whether the human player is facing an A.I.
     AI = models.BooleanField(null=False, default=False)
 
+    # when the room/model was created
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # state i.e. 2d array to store the go board
+    # state i.e. 19x19 length string of 0s to represent empty board
     # we must use a charfield which then must be converted
-    # from JavaScript String -> Python list
+    # from JavaScript String -> Python list for backend A.I. input
     # and then,
-    # from Python string -> JavaScript array
+    # from Python string -> JavaScript string for frontend
     board = models.CharField(
         max_length=765, unique=False, default="0" * 19 * 19)
 
