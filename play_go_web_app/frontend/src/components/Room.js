@@ -84,7 +84,7 @@ export default function Room(props) {
     setOpen(false);
   };
 
-  // roomSocket uses useState because otherwise,
+  // roomSocket instantiated with useState because otherwise,
   // the same room would possess six sockets instead of one. (seen by console logging)
   // We assume this is because this React component gets re-rendered multiple times (6 times, probably)
   // when a user enter this room.
