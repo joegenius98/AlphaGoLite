@@ -146,14 +146,14 @@ class CreateRoomView(APIView):
             turn = serializer.data.get('turn')
 
             AI = serializer.data.get('AI')
-            
+
             # board = serializer.data.get('board')
 
             # # retrieve session key
             host = self.request.session.session_key
             # retrieve unique room from unique session key
             queryset = Room.objects.filter(host=host)
-            
+
             # if this user has already created a room
             if queryset.exists():
                 # simply update this room's settings
@@ -161,9 +161,9 @@ class CreateRoomView(APIView):
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
                 room.turn = turn
-                room.AI=AI
+                room.AI = AI
                 # room.board = board
-                room.save(update_fields=["turn","AI"])
+                room.save(update_fields=["turn", "AI"])
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
@@ -171,6 +171,8 @@ class CreateRoomView(APIView):
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
+
+                logger.error(f"Turn value is: {room.turn}")
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
         # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
