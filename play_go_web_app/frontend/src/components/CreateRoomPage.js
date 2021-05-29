@@ -71,10 +71,10 @@ function CustomizedButtons(props) {
 
   return (
     <>
-      {!props.turn ? (
+      {props.turn ? (
         <>
           <Grid item xs={6}>
-            <NotColorButton
+            <ColorButton
               onClick={() => {
                 props.change(true);
               }}
@@ -83,10 +83,10 @@ function CustomizedButtons(props) {
               className={classes.margin}
             >
               <BlackCircle />
-            </NotColorButton>
+            </ColorButton>
           </Grid>
           <Grid item xs={6}>
-            <ColorButton
+            <NotColorButton
               onClick={() => {
                 props.change(false);
               }}
@@ -95,13 +95,13 @@ function CustomizedButtons(props) {
               className={classes.margin}
             >
               <WhiteCircle />
-            </ColorButton>
+            </NotColorButton>
           </Grid>
         </>
       ) : (
         <>
           <Grid item xs={6}>
-            <ColorButton
+            <NotColorButton
               onClick={() => {
                 props.change(true);
               }}
@@ -110,10 +110,10 @@ function CustomizedButtons(props) {
               className={classes.margin}
             >
               <BlackCircle />
-            </ColorButton>
+            </NotColorButton>
           </Grid>
           <Grid item xs={6}>
-            <NotColorButton
+            <ColorButton
               onClick={() => {
                 props.change(false);
               }}
@@ -122,7 +122,7 @@ function CustomizedButtons(props) {
               className={classes.margin}
             >
               <WhiteCircle />
-            </NotColorButton>
+            </ColorButton>
           </Grid>
         </>
       )}
