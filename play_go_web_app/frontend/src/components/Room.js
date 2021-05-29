@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import godash from "godash";
 import { Goban } from "react-go-board";
 import { makeStyles } from "@material-ui/core/styles";
@@ -63,7 +63,7 @@ export default function Room(props) {
   const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
-  const [turn, setTurn] = useState(true);
+  const turn = useRef(true);
   // const [tmpboard, settmpBoard] = useState("[]");
   const [curPlayer, setCurPlayer] = useState("null");
   const [nameForm, setNameForm] = useState(true);
@@ -104,7 +104,7 @@ export default function Room(props) {
     setPlayer2(data.player2);
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
-    setTurn(data.turn);
+    turn.current = data.turn;
 
     if (data.new_move_x != -1) {
       setBoard(
@@ -189,9 +189,10 @@ export default function Room(props) {
           setBoard(getBoard(responseJSON.board));
 
           // set to whoever's turn it is at the moment
-          setTurn(responseJSON.turn);
+          turn.current = responseJSON.turn;
           setAI(responseJSON.AI);
 
+          //for updating backend with new player names (from stripping off "TMP"s)
           roomSocket.send(
             JSON.stringify({
               player1: p1,
@@ -220,7 +221,8 @@ export default function Room(props) {
   }, []);
   // const annotations = [new godash.Coordinate(2, 2)];
 
-  var new_board = 0;
+  var new_board = null;
+  var colorPiece = null;
 
   // const roomName = window.location.pathname;
 
@@ -228,17 +230,19 @@ export default function Room(props) {
     //was here for debugging purposes
     // console.log(coordinate);
     try {
-      new_board = godash.addMove(board, coordinate, godash.BLACK);
+      colorPiece = turn.current ? godash.BLACK : godash.WHITE;
+      new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
 
+      //for updating backend with new board and to send to other clients too
       roomSocket.send(
         JSON.stringify({
           player1: player1,
           player2: player2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: !turn,
+          turn: !turn.current,
           new_move_x: coordinate.x,
           new_move_y: coordinate.y,
         })
@@ -269,13 +273,15 @@ export default function Room(props) {
       } else {
         setPlayer1("TODO: Spectator Cases");
       }
+
+      //for updating backend with new player name
       roomSocket.send(
         JSON.stringify({
           player1: p1,
           player2: p2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: !turn,
+          turn: turn.current,
           new_move_x: -1,
           new_move_y: -1,
         })
@@ -315,7 +321,7 @@ export default function Room(props) {
         player2: player2,
         player1Color: p1,
         player2Color: p2,
-        turn: !turn,
+        turn: turn.current,
         new_move_x: -1,
         new_move_y: -1,
       })
