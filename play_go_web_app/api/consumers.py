@@ -60,9 +60,10 @@ class ChatConsumer(WebsocketConsumer):
         # but we want to change the name
         # without making a move
         if new_move_x != -1:
+            board_piece_str = "1" if turn else "2"
             replace_idx = 19 * new_move_y + new_move_x
             room.board = room.board[:replace_idx] + \
-                "1" + room.board[replace_idx+1:]
+                board_piece_str + room.board[replace_idx+1:]
 
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",
