@@ -11,7 +11,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//black color
+//#000 --> black
+//#fff --> white
+
+//Every Button has its indicated token color in the middle.
+
+// ColorButton indicates selected button with black background
 const ColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#000",
@@ -21,7 +26,7 @@ const ColorButton = withStyles((theme) => ({
   },
 }))(Button);
 
-//white color
+//ColorButton indicates the other, non-selected button with white background
 const NotColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#fff",
@@ -31,12 +36,41 @@ const NotColorButton = withStyles((theme) => ({
   },
 }))(Button);
 
+function BlackCircle() {
+  return (
+    <svg width="100%" height="100%">
+      <circle
+        cx="50%"
+        cy="50%"
+        r="10%"
+        stroke="white"
+        strokeWidth="4"
+        fill="black"
+      />
+    </svg>
+  );
+}
+
+function WhiteCircle() {
+  return (
+    <svg width="100%" height="100%">
+      <circle
+        cx="50%"
+        cy="50%"
+        r="10%"
+        stroke="black"
+        strokeWidth="4"
+        fill="white"
+      />
+    </svg>
+  );
+}
+
 function CustomizedButtons(props) {
   const classes = useStyles();
 
   return (
     <>
-      {/* if it's player 1's turn,  */}
       {!props.turn ? (
         <>
           <Grid item xs={6}>
@@ -48,16 +82,7 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <svg width="100%" height="100%">
-                <circle
-                  cx="50%"
-                  cy="50%"
-                  r="10%"
-                  stroke="white"
-                  strokeWidth="4"
-                  fill="black"
-                />
-              </svg>
+              <BlackCircle />
             </NotColorButton>
           </Grid>
           <Grid item xs={6}>
@@ -69,16 +94,7 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <svg width="100%" height="100%">
-                <circle
-                  cx="50%"
-                  cy="50%"
-                  r="10%"
-                  stroke="black"
-                  strokeWidth="4"
-                  fill="white"
-                />
-              </svg>
+              <WhiteCircle />
             </ColorButton>
           </Grid>
         </>
@@ -93,16 +109,7 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <svg width="100%" height="100%">
-                <circle
-                  cx="50%"
-                  cy="50%"
-                  r="10%"
-                  stroke="white"
-                  strokeWidth="4"
-                  fill="black"
-                />
-              </svg>
+              <BlackCircle />
             </ColorButton>
           </Grid>
           <Grid item xs={6}>
@@ -114,16 +121,7 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <svg width="100%" height="100%">
-                <circle
-                  cx="50%"
-                  cy="50%"
-                  r="10%"
-                  stroke="black"
-                  strokeWidth="4"
-                  fill="white"
-                />
-              </svg>
+              <WhiteCircle />
             </NotColorButton>
           </Grid>
         </>
@@ -165,7 +163,7 @@ class CreateRoomPage extends Component {
       body: JSON.stringify({
         turn: this.state.turn,
         // board: JSON.stringify(myGrid),
-        AI:AI,
+        AI: AI,
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -210,7 +208,7 @@ class CreateRoomPage extends Component {
           <Button
             color="primary"
             variant="contained"
-            onClick={()=>this.handleRoomButtonPressed(true)}
+            onClick={() => this.handleRoomButtonPressed(true)}
           >
             Play with AI
           </Button>
@@ -219,7 +217,7 @@ class CreateRoomPage extends Component {
           <Button
             color="primary"
             variant="contained"
-            onClick={()=>this.handleRoomButtonPressed(false)}
+            onClick={() => this.handleRoomButtonPressed(false)}
           >
             Play against friends
           </Button>
