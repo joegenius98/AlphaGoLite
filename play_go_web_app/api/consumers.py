@@ -60,7 +60,10 @@ class ChatConsumer(WebsocketConsumer):
         # but we want to change the name
         # without making a move
         if new_move_x != -1:
-            board_piece_str = "1" if turn else "2"
+            # logic: after clicking, it is immediately the other player's turn. So, when player 1 clicks for a move, for example,
+            # it is immediately player 2's turn, which means that player 1 has just made a move. That's why if it's player 1's turn (where turn == True),
+            # player 2 just went, and thus we make board_piece_str "2".
+            board_piece_str = "2" if turn else "1"
             replace_idx = 19 * new_move_y + new_move_x
             room.board = room.board[:replace_idx] + \
                 board_piece_str + room.board[replace_idx+1:]
