@@ -148,6 +148,9 @@ class CreateRoomPage extends Component {
     });
   }
 
+  /*
+  parameter "AI" tells whether the player wants to face the A.I. 
+  */
   handleRoomButtonPressed(AI) {
     /*
     -Do we want the initial board to be created by the host in the frontend,
@@ -219,7 +222,7 @@ class CreateRoomPage extends Component {
             variant="contained"
             onClick={() => this.handleRoomButtonPressed(false)}
           >
-            Play against friends
+            Play with Friend
           </Button>
         </Grid>
         <Grid item xs={12} align="center">
