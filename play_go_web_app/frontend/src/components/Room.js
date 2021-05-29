@@ -111,7 +111,8 @@ export default function Room(props) {
         godash.addMove(
           board,
           new godash.Coordinate(data.new_move_x, data.new_move_y),
-          godash.BLACK
+          // if black just made a move, it is white's turn (turn == false)
+          turn.current ? godash.WHITE : godash.BLACK
         )
       );
     }
