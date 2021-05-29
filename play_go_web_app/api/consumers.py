@@ -38,7 +38,9 @@ class ChatConsumer(WebsocketConsumer):
         player1Color = text_data_json['player1Color']
 
         player2Color = text_data_json['player2Color']
-        turn = True if text_data_json['turn'] == "True" else False
+        # turn = True if text_data_json['turn'] == "True" else False <--- this line of code does not do what you think it does
+        # strangely enough, boolean values are not stringified, hence the next line of code is:
+        turn = text_data_json['turn']
         new_move_x = int(text_data_json['new_move_x'])
         new_move_y = int(text_data_json['new_move_y'])
 
