@@ -124,11 +124,11 @@ export default function Room(props) {
   function getBoard(boardStr) {
     let toRet = new godash.Board(19);
     for (let i in boardStr) {
-      if (boardStr[i] == "1")
+      if (boardStr[i] !== "0")
         toRet = godash.addMove(
           toRet,
           new godash.Coordinate(i % 19, Math.floor(i / 19)),
-          godash.BLACK
+          boardStr[i] == "1" ? godash.BLACK : godash.WHITE
         );
     }
 
