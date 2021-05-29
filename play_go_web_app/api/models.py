@@ -62,6 +62,8 @@ class Room(models.Model):
     # from JavaScript String -> Python list for backend A.I. input
     # and then,
     # from Python string -> JavaScript string for frontend
+
+    # "1" --> black piece and "2" --> white piece
     board = models.CharField(
         max_length=765, unique=False, default="0" * 19 * 19)
 
