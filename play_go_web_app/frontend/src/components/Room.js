@@ -267,7 +267,8 @@ export default function Room(props) {
           player2: player2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: (!turn).toString(),
+          turn: AI? 
+            firstMove? (!turn).toString()+"B": (!turn).toString()+"W" : (!turn).toString(),
           new_move_x: coordinate.x,
           new_move_y: coordinate.y,
         })
