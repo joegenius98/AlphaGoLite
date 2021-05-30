@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from .models import Room
 import logging
+import random
 logger = logging.getLogger(__name__)
 
 
@@ -41,11 +42,25 @@ class ChatConsumer(WebsocketConsumer):
         # turn = True if text_data_json['turn'] == "True" else False <--- this line of code does not do what you think it does
         # strangely enough, boolean values are not stringified, hence the next line of code is:
         turn = text_data_json['turn']
+
+        # AI case: B if AI move should be black and W id AI move should be white
+        AI = None
+        black = None
+        if turn[-1] == "B":
+            AI = True
+            black = True
+            turn = turn[:-1]
+        elif turn[-1] == "W":
+            AI = True
+            black = True
+            turn = turn[:-1]
         if (str(turn) in ["false", "False", "FALSE"]):
             turn = False
         else:
             logger.error(str(text_data_json))
             turn = True
+        if AI:
+            turn = not turn
         new_move_x = int(text_data_json['new_move_x'])
         new_move_y = int(text_data_json['new_move_y'])
 
@@ -72,6 +87,20 @@ class ChatConsumer(WebsocketConsumer):
             replace_idx = 19 * new_move_y + new_move_x
             room.board = room.board[:replace_idx] + \
                 board_piece_str + room.board[replace_idx+1:]
+
+            # Random Move.
+            board_piece_str = "2" if not black else "1"
+            random_open_coordinates = []
+            for i in range(len(room.board)):
+                if room.board[i] not in {"2", "1"}:
+                    x = (i-i % 19)//19
+                    y = (i % 19)
+                    random_open_coordinates.append((x, y, i))
+            # chose random coordinate from a list of random coordinates
+            move = random.choice(random_open_coordinates)
+            new_move_x, new_move_y, index = move
+            room.board = room.board[:index] + \
+                board_piece_str + room.board[index+1:]
 
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",
