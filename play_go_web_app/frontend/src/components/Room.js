@@ -106,7 +106,6 @@ export default function Room(props) {
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
 
-    setTurn(data.turn);
     if (data.new_move_x != -1) {
       setBoard(
         godash.addMove(
@@ -117,6 +116,7 @@ export default function Room(props) {
         )
       );
     }
+    setTurn(data.turn);
   };
 
   roomSocket.onclose = function (e) {
@@ -168,7 +168,7 @@ export default function Room(props) {
           }
 
           //if player 2 joins next
-          else if (responseJSON.player2.substring(0, 3) == "TMP") {
+          else if (responseJSON.player2.substring(0, 3) == "TMP" && !AI) {
             //strip off "TMP" from player 2 and set it as player
             p1 = responseJSON.player1;
             p2 = responseJSON.player2.substring(3);
@@ -206,7 +206,7 @@ export default function Room(props) {
               player2: p2,
               player1Color: responseJSON.player1Color,
               player2Color: responseJSON.player2Color,
-              turn: responseJSON.turn,
+              turn: responseJSON.turn.toString(),
               new_move_x: -1,
               new_move_y: -1,
             })
@@ -235,12 +235,7 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     //was here for debugging purposes
     // console.log(coordinate);
-    if (
-      !(
-        (firstMove == turn && curPlayer == "p1") ||
-        (firstMove != turn && curPlayer == "p2")
-      )
-    ) {
+    if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2"))) {
       console.log(firstMove, turn, curPlayer);
       return;
     }
@@ -381,10 +376,13 @@ export default function Room(props) {
               <>
                 {curPlayer != "p1" ? (
                   <Paper
+                    variant="outlined"
                     style={{
                       backgroundColor: player1Color,
                       color: "black",
                       width: "61.5%",
+                      border: !turn ? "transparent" : "2px solid black",
+                      borderRadius: "2px",
                     }}
                   >
                     <FormControl>
@@ -396,11 +394,16 @@ export default function Room(props) {
                   </Paper>
                 ) : (
                   <Paper
+                    // elevation={24}
+                    variant="outlined"
                     style={{
                       backgroundColor: player2Color,
                       color: "black",
                       width: "61.5%",
+                      border: turn ? "transparent" : "2px solid black",
+                      borderRadius: "0px",
                     }}
+                    square
                   >
                     <FormControl>
                       <Typography>
@@ -420,7 +423,7 @@ export default function Room(props) {
           <Grid container justify="center" xs={12} sm={12}>
             <Paper
               style={{
-                backgroundColor: "grey",
+                backgroundColor: "black",
                 color: "black",
                 width: "61.5%",
               }}
@@ -442,6 +445,8 @@ export default function Room(props) {
                       backgroundColor: player1Color,
                       color: player1Color,
                       width: "61.5%",
+                      border: !turn ? "transparent" : "2px solid black",
+                      borderRadius: "2px",
                     }}
                     onClick={() =>
                       nameForm ? handleClickOpen() : console.log("null")
@@ -475,6 +480,8 @@ export default function Room(props) {
                       backgroundColor: player2Color,
                       color: player2Color,
                       width: "61.5%",
+                      border: turn ? "transparent" : "2px solid black",
+                      borderRadius: "2px",
                     }}
                     onClick={() => (nameForm ? handleClickOpen() : null)}
                   >
