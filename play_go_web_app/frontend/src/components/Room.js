@@ -63,13 +63,14 @@ export default function Room(props) {
   const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
-  const turn = useRef(true);
+  const [turn,setTurn] = useState(true);
   // const [tmpboard, settmpBoard] = useState("[]");
   const [curPlayer, setCurPlayer] = useState("null");
   const [nameForm, setNameForm] = useState(true);
   const ROOM_CODE = window.location.pathname.substring(6);
   const [open, setOpen] = React.useState(false);
   const [AI, setAI] = useState(false);
+  const [firstMove,setFirstMove]=useState(false);
   const [age, setAge] = React.useState("");
 
   const handleChange = (event) => {
@@ -104,15 +105,15 @@ export default function Room(props) {
     setPlayer2(data.player2);
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
-    turn.current = data.turn;
-
+    
+    setTurn(data.turn);
     if (data.new_move_x != -1) {
       setBoard(
         godash.addMove(
           board,
           new godash.Coordinate(data.new_move_x, data.new_move_y),
           // if black just made a move, it is white's turn (turn == false)
-          turn.current ? godash.WHITE : godash.BLACK
+          turn==firstMove ? godash.WHITE : godash.BLACK
         )
       );
     }
@@ -154,7 +155,7 @@ export default function Room(props) {
           let p2;
           //if player 1 joins first (both players have "TMP" in front)
           if (responseJSON.player1.substring(0, 3) == "TMP") {
-            //strip off "TMP" from player 1 and set it as current player
+            //strip off "TMP" from player 1 and set it as player
             p1 = responseJSON.player1.substring(3);
             p2 = responseJSON.player2;
             setCurPlayer("p1");
@@ -164,7 +165,7 @@ export default function Room(props) {
 
           //if player 2 joins next
           else if (responseJSON.player2.substring(0, 3) == "TMP") {
-            //strip off "TMP" from player 2 and set it as current player
+            //strip off "TMP" from player 2 and set it as player
             p1 = responseJSON.player1;
             p2 = responseJSON.player2.substring(3);
             setCurPlayer("p2");
@@ -190,7 +191,8 @@ export default function Room(props) {
           setBoard(getBoard(responseJSON.board));
 
           // set to whoever's turn it is at the moment
-          turn.current = responseJSON.turn;
+          setTurn(responseJSON.turn);
+          setFirstMove(responseJSON.turn);
           setAI(responseJSON.AI);
 
           //for updating backend with new player names (from stripping off "TMP"s)
@@ -209,15 +211,15 @@ export default function Room(props) {
     }
     getRoom();
     return () => {
-      // function leaveRoom() {
-      //   const requestOptions = {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //   };
-      //   fetch("/api/leave-room", requestOptions).then((_response) => {
-      //   });
-      // }
-      // leaveRoom(props);
+      function leaveRoom() {
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        };
+        fetch("/api/leave-room", requestOptions).then((_response) => {
+        });
+      }
+      leaveRoom(props);
     };
   }, []);
   // const annotations = [new godash.Coordinate(2, 2)];
@@ -230,8 +232,13 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     //was here for debugging purposes
     // console.log(coordinate);
+    if (!((firstMove==turn && (curPlayer=="p1"))||(firstMove!=turn && (curPlayer=="p2")))){
+      console.log(firstMove,turn,curPlayer);
+      return;
+    }
     try {
-      colorPiece = turn.current ? godash.BLACK : godash.WHITE;
+     
+      colorPiece = turn==firstMove ? godash.WHITE : godash.BLACK;
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
@@ -243,11 +250,12 @@ export default function Room(props) {
           player2: player2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: !turn.current,
+          turn: (!turn).toString(),
           new_move_x: coordinate.x,
           new_move_y: coordinate.y,
         })
       );
+      setTurn(!turn);
 
       console.log("Board stats under handleCoordinateClick");
       console.log(new_board.toString());
@@ -282,7 +290,7 @@ export default function Room(props) {
           player2: p2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: turn.current,
+          turn: turn.toString(),
           new_move_x: -1,
           new_move_y: -1,
         })
@@ -322,7 +330,7 @@ export default function Room(props) {
         player2: player2,
         player1Color: p1,
         player2Color: p2,
-        turn: turn.current,
+        turn: turn.toString(),
         new_move_x: -1,
         new_move_y: -1,
       })
@@ -376,7 +384,7 @@ export default function Room(props) {
                   >
                     <FormControl>
                       <Typography>
-                        {player2.substr(0, 3) == "TMP" && !AI
+                        {player2.substr(0, 3) == "TMP"
                           ? "Waiting for Opponent to Join..."
                           : player2}{" "}
                         {AI ? "🤖" : "🗿"}
@@ -585,20 +593,3 @@ export default function Room(props) {
   );
 }
 
-// <div>
-//   <h3>{this.roomCode}</h3>
-//   <p>Votes: {this.state.votesToSkip}</p>
-/* <p>Guest Can Tilapia: {this.state.guestCanPause.toString()}</p>
-        <p>Host: {this.state.isHost.toString()}</p>
-        <div style={{width:'300px'}}>
-          <Goban
-            board={board}
-            boardColor="#efefef"
-            annotations={annotations}
-            onCoordinateClick={this.handleCoordinateClick}
-            
-          />
-        </div> */
-
-// </div>
-// AlphaGoLite/play_go_web_app/frontend
