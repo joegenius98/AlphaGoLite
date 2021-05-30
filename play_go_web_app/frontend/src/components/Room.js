@@ -137,6 +137,10 @@ export default function Room(props) {
     return toRet;
   }
 
+  // function getBoardStr() {
+  //   board.m
+  // }
+
   //called every time a user joins the room
   useEffect((props) => {
     console.log("useEffect in use");
@@ -242,6 +246,18 @@ export default function Room(props) {
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
+
+      console.log(
+        new_board.moves
+          .entrySeq()
+          .forEach((e) =>
+            console.log(
+              `coordinate: (${e[0].x}, ${
+                e[0].y
+              }), value type: ${typeof e[1]}, value: ${e[1]}`
+            )
+          )
+      );
 
       //for updating backend with new board and to send to other clients too
       roomSocket.send(
@@ -357,6 +373,7 @@ export default function Room(props) {
             </Paper>
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
+            {/* wait until everything is fetched from the API first (render "Loading...") */}
             {player1 && player2 && player1Color && player2Color && curPlayer ? (
               <>
                 {curPlayer != "p1" ? (
@@ -394,7 +411,7 @@ export default function Room(props) {
                 )}
               </>
             ) : (
-              <Typography>Loading..</Typography>
+              <Typography>Loading...</Typography>
             )}
           </Grid>
           <Grid container justify="center" xs={12} sm={12}>
