@@ -63,14 +63,14 @@ export default function Room(props) {
   const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
-  const [turn,setTurn] = useState(true);
+  const [turn, setTurn] = useState(true);
   // const [tmpboard, settmpBoard] = useState("[]");
   const [curPlayer, setCurPlayer] = useState("null");
   const [nameForm, setNameForm] = useState(true);
   const ROOM_CODE = window.location.pathname.substring(6);
   const [open, setOpen] = React.useState(false);
   const [AI, setAI] = useState(false);
-  const [firstMove,setFirstMove]=useState(false);
+  const [firstMove, setFirstMove] = useState(false);
   const [age, setAge] = React.useState("");
 
   const handleChange = (event) => {
@@ -105,7 +105,7 @@ export default function Room(props) {
     setPlayer2(data.player2);
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
-    
+
     setTurn(data.turn);
     if (data.new_move_x != -1) {
       setBoard(
@@ -113,7 +113,7 @@ export default function Room(props) {
           board,
           new godash.Coordinate(data.new_move_x, data.new_move_y),
           // if black just made a move, it is white's turn (turn == false)
-          turn==firstMove ? godash.WHITE : godash.BLACK
+          turn == firstMove ? godash.WHITE : godash.BLACK
         )
       );
     }
@@ -220,8 +220,7 @@ export default function Room(props) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         };
-        fetch("/api/leave-room", requestOptions).then((_response) => {
-        });
+        fetch("/api/leave-room", requestOptions).then((_response) => {});
       }
       leaveRoom(props);
     };
@@ -236,13 +235,17 @@ export default function Room(props) {
   function handleCoordinateClick(coordinate) {
     //was here for debugging purposes
     // console.log(coordinate);
-    if (!((firstMove==turn && (curPlayer=="p1"))||(firstMove!=turn && (curPlayer=="p2")))){
-      console.log(firstMove,turn,curPlayer);
+    if (
+      !(
+        (firstMove == turn && curPlayer == "p1") ||
+        (firstMove != turn && curPlayer == "p2")
+      )
+    ) {
+      console.log(firstMove, turn, curPlayer);
       return;
     }
     try {
-     
-      colorPiece = turn==firstMove ? godash.WHITE : godash.BLACK;
+      colorPiece = turn == firstMove ? godash.WHITE : godash.BLACK;
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
@@ -609,4 +612,3 @@ export default function Room(props) {
     </div>
   );
 }
-
