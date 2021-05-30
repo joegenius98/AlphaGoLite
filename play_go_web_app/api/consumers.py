@@ -41,9 +41,10 @@ class ChatConsumer(WebsocketConsumer):
         # turn = True if text_data_json['turn'] == "True" else False <--- this line of code does not do what you think it does
         # strangely enough, boolean values are not stringified, hence the next line of code is:
         turn = text_data_json['turn']
-        if (turn=="false"):
+        if (str(turn) in ["false","False","FALSE"]):
             turn=False
         else:
+            logger.error(str(text_data_json))
             turn=True
         new_move_x = int(text_data_json['new_move_x'])
         new_move_y = int(text_data_json['new_move_y'])
