@@ -106,7 +106,7 @@ export default function Room(props) {
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
     
-    setTurn(data.turn);
+    
     if (data.new_move_x != -1) {
       setBoard(
         godash.addMove(
@@ -117,6 +117,7 @@ export default function Room(props) {
         )
       );
     }
+    setTurn(data.turn);
   };
 
   roomSocket.onclose = function (e) {
