@@ -43,7 +43,7 @@ class ChatConsumer(WebsocketConsumer):
         # strangely enough, boolean values are not stringified, hence the next line of code is:
         turn = text_data_json['turn']
 
-        # AI case: B if AI move should be black and W id AI move should be white
+        # AI case: B if AI move should be black and W if AI move should be white
         AI = None
         black = None
         if turn[-1] == "B":
@@ -54,6 +54,8 @@ class ChatConsumer(WebsocketConsumer):
             AI = True
             black = True
             turn = turn[:-1]
+
+        # accounts for all possible spellings just in case
         if (str(turn) in ["false", "False", "FALSE"]):
             turn = False
         else:
