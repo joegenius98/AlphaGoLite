@@ -232,6 +232,9 @@ export default function Room(props) {
           setAI(responseJSON.AI);
 
           //for updating backend with new player names (from stripping off "TMP"s)
+
+          // new question: how do you make it so that we recognize who is sending this roomSocket send
+          // so that the A.I. doesn't play a move every single time this send is being made (from any client refreshing, any new client joining, etc.)?
           roomSocket.send(
             JSON.stringify({
               player1: p1,
