@@ -53,7 +53,7 @@ class ChatConsumer(WebsocketConsumer):
             turn = turn[:-1]
         elif turn[-1] == "W":
             AI = True
-            ai_is_black = True
+            ai_is_black = False
             turn = turn[:-1]
 
         # accounts for all possible spellings just in case

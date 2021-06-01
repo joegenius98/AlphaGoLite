@@ -54,6 +54,9 @@ class Room(models.Model):
     # whether the human player is facing an A.I.
     AI = models.BooleanField(null=False, default=False)
 
+    # self-explanatory (whether or not there is an A.I. -- helps with determining turn logic)
+    is_human_player_first = models.BooleanField(null=False, default=False)
+
     # when the room/model was created
     created_at = models.DateTimeField(auto_now_add=True)
 

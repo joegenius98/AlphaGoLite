@@ -74,7 +74,10 @@ export default function Room(props) {
 
   // for A.I. player
   const [AI, setAI] = useState(false);
-  const [firstMove, setFirstMove] = useState(false);
+  // tells the human player's stance
+  // isHumanFirst == true ==> human player chose black and therefore goes first
+  // isHumanFirst == false ==> human player chose white (in CreateRoomPage) and therefore goes second
+  const [isHumanFirst, setIsHumanFirst] = useState(false);
 
   // facilitating changing player's info.
   const [nameForm, setNameForm] = useState(true);
@@ -125,7 +128,7 @@ export default function Room(props) {
     //       board,
     //       new godash.Coordinate(data.new_move_x, data.new_move_y),
     //       // if black just made a move, it is white's turn (turn == false)
-    //       turn == firstMove ? godash.WHITE : godash.BLACK
+    //       turn == isHumanFirst ? godash.WHITE : godash.BLACK
     //     )
     //   );
     // }
@@ -185,7 +188,7 @@ export default function Room(props) {
           //use let keyword inside of this function scope
           let p1;
           let p2;
-          //if player 1 joins first (both players have "TMP" in front)
+          //the first person who joins room = player 1, regardless of color piece chosen (both players have "TMP" in front)
           if (responseJSON.player1.substring(0, 3) == "TMP") {
             //strip off "TMP" from player 1 and set it as player
             p1 = responseJSON.player1.substring(3);
@@ -195,7 +198,7 @@ export default function Room(props) {
             setPlayer2(p2);
           }
 
-          //if player 2 joins next
+          //if player 2 (as a human) joins next
           else if (responseJSON.player2.substring(0, 3) == "TMP" && !AI) {
             //strip off "TMP" from player 2 and set it as player
             p1 = responseJSON.player1;
@@ -228,7 +231,7 @@ export default function Room(props) {
           // turn == true --> room creator goes first (and is black)
           // turn == false --> room creator goes second (and is white)
           setTurn(responseJSON.turn);
-          setFirstMove(responseJSON.turn);
+          setIsHumanFirst(responseJSON.turn);
           setAI(responseJSON.AI);
 
           //for updating backend with new player names (from stripping off "TMP"s)
@@ -277,13 +280,17 @@ export default function Room(props) {
     //make board unclickable if it is not your turn
     // if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2")))
     // tried to make condition checking more readable
-    if ((turn && curPlayer === "p2") || (!turn && curPlayer == "p1")) {
-      console.log(firstMove, turn, curPlayer);
+    if (
+      (turn && curPlayer === "p2") ||
+      (!turn && curPlayer === "p1") ||
+      curPlayer === "spectator"
+    ) {
+      console.log(isHumanFirst, turn, curPlayer);
       return;
     }
     try {
       colorPiece = turn ? godash.BLACK : godash.WHITE;
-      // colorPiece = turn == firstMove ? godash.BLACK : godash.WHITE;
+      // colorPiece = turn == isHumanFirst ? godash.BLACK : godash.WHITE;
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
@@ -304,7 +311,7 @@ export default function Room(props) {
           player1Color: player1Color,
           player2Color: player2Color,
           turn: AI
-            ? firstMove
+            ? isHumanFirst
               ? (!turn).toString() + "B" // A.I. is playing black
               : (!turn).toString() + "W" // A.I. is playing white
             : (!turn).toString(),
