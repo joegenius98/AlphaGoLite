@@ -58,20 +58,30 @@ function leaveButtonPressed(props) {
 
 export default function Room(props) {
   const classes = useStyles();
-  const [board, setBoard] = useState(new godash.Board(19));
+
+  //board info.
+  const [board, setBoard] = useState(new godash.Board(19)); //to convert board string backend/socket data --> frontend representation
+  const boardStrArr = useRef(new Array(19 * 19)); // to convert board string frontend --> backend/socket data representation
+
+  //player info.
   const [player1, setPlayer1] = useState("");
   const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
   const [turn, setTurn] = useState(true);
-  // const [tmpboard, settmpBoard] = useState("[]");
   const [curPlayer, setCurPlayer] = useState("null");
-  const [nameForm, setNameForm] = useState(true);
-  const ROOM_CODE = window.location.pathname.substring(6);
-  const [open, setOpen] = React.useState(false);
+  const [age, setAge] = React.useState("");
+
+  // for A.I. player
   const [AI, setAI] = useState(false);
   const [firstMove, setFirstMove] = useState(false);
-  const [age, setAge] = React.useState("");
+
+  // facilitating changing player's info.
+  const [nameForm, setNameForm] = useState(true);
+  const [open, setOpen] = React.useState(false);
+
+  //room info.
+  const ROOM_CODE = window.location.pathname.substring(6);
 
   const handleChange = (event) => {
     setAge(Number(event.target.value) || "");
@@ -105,17 +115,25 @@ export default function Room(props) {
     setPlayer2(data.player2);
     setPlayer1Color(data.player1Color);
     setPlayer2Color(data.player2Color);
+    // convert string representation of board --> Godash board to then render on this client
+    setBoard(getGodashBoard(data.board));
 
-    if (data.new_move_x != -1) {
-      setBoard(
-        godash.addMove(
-          board,
-          new godash.Coordinate(data.new_move_x, data.new_move_y),
-          // if black just made a move, it is white's turn (turn == false)
-          turn == firstMove ? godash.WHITE : godash.BLACK
-        )
-      );
-    }
+    // // if we received a an A.I.-based move
+    // if (data.new_move_x != -1) {
+    //   setBoard(
+    //     godash.addMove(
+    //       board,
+    //       new godash.Coordinate(data.new_move_x, data.new_move_y),
+    //       // if black just made a move, it is white's turn (turn == false)
+    //       turn == firstMove ? godash.WHITE : godash.BLACK
+    //     )
+    //   );
+    // }
+
+    // // otherwise, we know that
+    // else {
+
+    // }
     setTurn(data.turn);
   };
 
@@ -123,7 +141,8 @@ export default function Room(props) {
     console.error("Chat socket closed unexpectedly");
   };
 
-  function getBoard(boardStr) {
+  // converts board string representation to godash Board object
+  function getGodashBoard(boardStr) {
     let toRet = new godash.Board(19);
     for (let i in boardStr) {
       if (boardStr[i] !== "0")
@@ -135,6 +154,15 @@ export default function Room(props) {
     }
 
     return toRet;
+  }
+
+  function updateBoardStrArr(newBoard) {
+    newBoard.moves
+      .entrySeq()
+      .forEach(
+        (move, ind) =>
+          (boardStrArr.current[ind] = move[1] == "black" ? "1" : "2")
+      );
   }
 
   // function getBoardStr() {
@@ -191,10 +219,14 @@ export default function Room(props) {
           setPlayer1Color(responseJSON.player1Color);
           setPlayer2Color(responseJSON.player2Color);
 
-          //render the board
-          setBoard(getBoard(responseJSON.board));
+          //render and update board representations
+          // do NOT switch the order of these! setBoard first, then update board string array second
+          setBoard(getGodashBoard(responseJSON.board));
+          updateBoardStrArr(board);
 
           // set to whoever's turn it is at the moment
+          // turn == true --> room creator goes first (and is black)
+          // turn == false --> room creator goes second (and is white)
           setTurn(responseJSON.turn);
           setFirstMove(responseJSON.turn);
           setAI(responseJSON.AI);
@@ -206,9 +238,14 @@ export default function Room(props) {
               player2: p2,
               player1Color: responseJSON.player1Color,
               player2Color: responseJSON.player2Color,
-              turn: responseJSON.turn.toString(),
-              new_move_x: -1,
-              new_move_y: -1,
+              turn: responseJSON.AI
+                ? responseJSON.turn
+                  ? responseJSON.turn.toString() + "W"
+                  : responseJSON.turn.toString() + "B"
+                : responseJSON.turn.toString(),
+              board: responseJSON.board,
+              // new_move_x: -1,
+              // new_move_y: -1,
             })
           );
         });
@@ -233,29 +270,28 @@ export default function Room(props) {
   // const roomName = window.location.pathname;
 
   function handleCoordinateClick(coordinate) {
-    //was here for debugging purposes
     // console.log(coordinate);
-    if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2"))) {
+    //make board unclickable if it is not your turn
+    // if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2")))
+    // tried to make condition checking more readable
+    if ((turn && curPlayer === "p2") || (!turn && curPlayer == "p1")) {
       console.log(firstMove, turn, curPlayer);
       return;
     }
     try {
-      colorPiece = turn == firstMove ? godash.WHITE : godash.BLACK;
+      colorPiece = turn ? godash.BLACK : godash.WHITE;
+      // colorPiece = turn == firstMove ? godash.BLACK : godash.WHITE;
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
 
-      console.log(
-        new_board.moves
-          .entrySeq()
-          .forEach((e) =>
-            console.log(
-              `coordinate: (${e[0].x}, ${
-                e[0].y
-              }), value type: ${typeof e[1]}, value: ${e[1]}`
-            )
-          )
-      );
+      //update string array representation of board
+      updateBoardStrArr(new_board);
+      // console.log(
+      //   `coordinate: (${e[0].x}, ${
+      //     e[0].y
+      //   }), value type: ${typeof e[1]}, value: ${e[1]}, index:${ind}`
+      // )
 
       //for updating backend with new board and to send to other clients too
       roomSocket.send(
@@ -264,10 +300,14 @@ export default function Room(props) {
           player2: player2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: AI? 
-            firstMove? (!turn).toString()+"B": (!turn).toString()+"W" : (!turn).toString(),
-          new_move_x: coordinate.x,
-          new_move_y: coordinate.y,
+          turn: AI
+            ? firstMove
+              ? (!turn).toString() + "B" // A.I. is playing black
+              : (!turn).toString() + "W" // A.I. is playing white
+            : (!turn).toString(),
+          // new_move_x: coordinate.x,
+          // new_move_y: coordinate.y,
+          board: boardStrArr.current.join(""),
         })
       );
       setTurn(!turn);
@@ -306,8 +346,9 @@ export default function Room(props) {
           player1Color: player1Color,
           player2Color: player2Color,
           turn: turn.toString(),
-          new_move_x: -1,
-          new_move_y: -1,
+          board: boardStrArr.current.join(""),
+          // new_move_x: -1,
+          // new_move_y: -1,
         })
       );
       setNameForm(!nameForm);
@@ -346,8 +387,9 @@ export default function Room(props) {
         player1Color: p1,
         player2Color: p2,
         turn: turn.toString(),
-        new_move_x: -1,
-        new_move_y: -1,
+        board: boardStrArr.current.join(""),
+        // new_move_x: -1,
+        // new_move_y: -1,
       })
     );
     handleClose();

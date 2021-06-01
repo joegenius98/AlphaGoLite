@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 
 //Every Button has its indicated token color in the middle.
 
-// ColorButton indicates selected button with black background
+// ColorButton indicates selected color piece with black background
 const ColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#000",
@@ -26,7 +26,7 @@ const ColorButton = withStyles((theme) => ({
   },
 }))(Button);
 
-//ColorButton indicates the other, non-selected button with white background
+//ColorButton indicates the other, non-selected color piece with white background
 const NotColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#fff",
@@ -71,10 +71,10 @@ function CustomizedButtons(props) {
 
   return (
     <>
-      {!props.turn ? (
+      {props.turn ? (
         <>
           <Grid item xs={6}>
-            <NotColorButton
+            <ColorButton
               onClick={() => {
                 props.change(true);
               }}
@@ -82,11 +82,11 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <WhiteCircle />
-            </NotColorButton>
+              <BlackCircle />
+            </ColorButton>
           </Grid>
           <Grid item xs={6}>
-            <ColorButton
+            <NotColorButton
               onClick={() => {
                 props.change(false);
               }}
@@ -94,14 +94,14 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <BlackCircle />
-            </ColorButton>
+              <WhiteCircle />
+            </NotColorButton>
           </Grid>
         </>
       ) : (
         <>
-        <Grid item xs={6}>
-            <ColorButton
+          <Grid item xs={6}>
+            <NotColorButton
               onClick={() => {
                 props.change(true);
               }}
@@ -109,11 +109,11 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <WhiteCircle />
-            </ColorButton>
+              <BlackCircle />
+            </NotColorButton>
           </Grid>
           <Grid item xs={6}>
-            <NotColorButton
+            <ColorButton
               onClick={() => {
                 props.change(false);
               }}
@@ -121,8 +121,8 @@ function CustomizedButtons(props) {
               color="primary"
               className={classes.margin}
             >
-              <BlackCircle />
-            </NotColorButton>
+              <WhiteCircle />
+            </ColorButton>
           </Grid>
         </>
       )}
@@ -195,7 +195,7 @@ class CreateRoomPage extends Component {
           <Grid container item xs={3} spacing={3} align="center">
             <React.Fragment>
               <Grid item xs={12}>
-                {!this.state.turn ? (
+                {this.state.turn ? (
                   <Typography component="h6" variant="h6">
                     Black
                   </Typography>
