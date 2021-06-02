@@ -31,55 +31,85 @@ class ChatConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data):
+        to_send = {'type': 'room_details'}
+
+        code = self.room_name
+        queryset = Room.objects.filter(code=code)
+        room = queryset[0]
+
         text_data_json = json.loads(text_data)
         logger.error(str(text_data_json))
-        player1 = text_data_json['player1']
-        player2 = text_data_json['player2']
 
-        player1Color = text_data_json['player1Color']
+        if 'player1' in text_data_json:
+            player1 = text_data_json['player1']
+            room.player1 = player1
+            to_send['player1'] = player1
 
-        player2Color = text_data_json['player2Color']
+        if 'player2' in text_data_json:
+            player2 = text_data_json['player2']
+            room.player2 = player2
+            to_send['player2'] = player2
+
+        if 'player1Color' in text_data_json:
+            player1Color = text_data_json['player1Color']
+            room.player1Color = player1Color
+            to_send['player1Color'] = player1Color
+
+        if 'player2Color' in text_data_json:
+            player2Color = text_data_json['player2Color']
+            room.player2Color = player2Color
+            to_send['player2Color'] = player2Color
+
         # turn = True if text_data_json['turn'] == "True" else False <--- this line of code does not do what you think it does
         # strangely enough, boolean values are not stringified, hence the next line of code is:
-        turn = text_data_json['turn']
 
-        # AI case: B if AI move should be black and W if AI move should be white
-        AI = False
-        ai_is_black = None
+        if 'board' in text_data_json:
+            board = text_data_json['board']
+            room.board = board
+            to_send['board'] = board
 
-        if turn[-1] == "B":
-            AI = True
-            ai_is_black = True
-            turn = turn[:-1]
-        elif turn[-1] == "W":
-            AI = True
-            ai_is_black = False
-            turn = turn[:-1]
+            if 'turn' in text_data_json:
+                turn = text_data_json['turn']
+                room.turn = turn
+                to_send['turn'] = turn
+
+                if 'isHumanPlayerFirst' in text_data_json:
+                    is_human_player_first = text_data_json['isHumanPlayerFirst']
+                    if turn != is_human_player_first:
+                        self.random_move(
+                            "2" if is_human_player_first else "1", room)
+                        # since a new move = updated board
+                        to_send['board'] = room.board
+                        # we switch it over to the human player
+                        to_send['turn'] = not turn
+
+        # # AI case: B if AI move should be black and W if AI move should be white
+        # AI = False
+        # ai_is_black = None
+
+        # if turn[-1] == "B":
+        #     AI = True
+        #     ai_is_black = True
+        #     turn = turn[:-1]
+        # elif turn[-1] == "W":
+        #     AI = True
+        #     ai_is_black = False
+        #     turn = turn[:-1]
 
         # accounts for all possible spellings just in case
-        if str(turn) in {"false", "False", "FALSE"}:
-            turn = False
-        else:
-            logger.error(str(text_data_json))
-            turn = True
+        # if str(turn) in {"false", "False", "FALSE"}:
+        #     turn = False
+        # else:
+        #     logger.error(str(text_data_json))
+        #     turn = True
+
+        if 'asdfasdf' not in text_data_json:
+            print('woo we mama this works! Woo-hoo!')
 
         # if AI:
         #     turn = not turn
         # new_move_x = int(text_data_json['new_move_x'])
         # new_move_y = int(text_data_json['new_move_y'])
-
-        board = text_data_json['board']
-
-        code = self.room_name
-        queryset = Room.objects.filter(code=code)
-        room = queryset[0]
-        room.player1 = player1
-
-        room.player2 = player2
-
-        room.turn = turn
-        room.player1Color = player1Color
-        room.player2Color = player2Color
 
         # # We set the coordinates to -1
         # # when we first join the room,
@@ -97,33 +127,32 @@ class ChatConsumer(WebsocketConsumer):
         # Originally we had that new move (x, y) idea for the minimization of data sent, but realized that when captures occur in Go,
         # we would somehow need to reflect that change in the backend board. Since godash takes cares of data structures and algorithms for Go board,
         # we scraped the new_move_x and new_move_y idea and just send in the whole board string representation from the frontend.
-        room.board = board
 
-        if AI:
-            self.random_move(ai_is_black, room)
+        # if AI:
+        #     self.random_move(ai_is_black, room)
 
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",
                                  "player1", "player2"])
     # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'room_details',
-                'player1': room.player1,
-                'player2': room.player2,
-                'player1Color': room.player1Color,
-                'player2Color': room.player2Color,
-                'turn': room.turn,
-                'board': room.board,
-                # 'new_move_x': new_move_x,
-                # 'new_move_y': new_move_y
-            }
-        )
+            self.room_group_name, to_send)
+        # {
+        #     'type': 'room_details',
+        #     'player1': room.player1,
+        #     'player2': room.player2,
+        #     'player1Color': room.player1Color,
+        #     'player2Color': room.player2Color,
+        #     'turn': room.turn,
+        #     'board': room.board,
+        #     # 'new_move_x': new_move_x,
+        #     # 'new_move_y': new_move_y
+        # }
+        # )
 
-    def random_move(self, black_is_ai, room):
+    def random_move(self, board_piece_str, room):
         # Random Move.
-        board_piece_str = "2" if not black_is_ai else "1"
+        # board_piece_str = "2" if not black_is_ai else "1"
         random_open_coordinates = []
         for i in range(len(room.board)):
             if room.board[i] not in {"2", "1"}:
@@ -142,25 +171,27 @@ class ChatConsumer(WebsocketConsumer):
         # return new_move_x, new_move_y
 
     # Receive message from room group
+
     def room_details(self, event):
-        player1 = event['player1']
-        player2 = event['player2']
-        player1Color = event['player1Color']
-        player2Color = event['player2Color']
-        turn = event['turn']
+        self.send(text_data=json.dumps(event))
+        # player1 = event['player1']
+        # player2 = event['player2']
+        # player1Color = event['player1Color']
+        # player2Color = event['player2Color']
+        # turn = event['turn']
 
-        board = event['board']
-        # new_move_x = event['new_move_x']
-        # new_move_y = event['new_move_y']
+        # board = event['board']
+        # # new_move_x = event['new_move_x']
+        # # new_move_y = event['new_move_y']
 
-        # Send message to WebSocket
-        self.send(text_data=json.dumps({
-            'player1': player1,
-            'player2': player2,
-            'player1Color': player1Color,
-            'player2Color': player2Color,
-            'turn': turn,
-            'board': board,
-            # 'new_move_x': new_move_x,
-            # 'new_move_y': new_move_y
-        }))
+        # # Send message to WebSocket
+        # self.send(text_data=json.dumps({
+        #     'player1': player1,
+        #     'player2': player2,
+        #     'player1Color': player1Color,
+        #     'player2Color': player2Color,
+        #     'turn': turn,
+        #     'board': board,
+        #     # 'new_move_x': new_move_x,
+        #     # 'new_move_y': new_move_y
+        # }))

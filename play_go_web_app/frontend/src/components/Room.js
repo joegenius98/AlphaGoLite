@@ -61,7 +61,7 @@ export default function Room(props) {
 
   //board info.
   const [board, setBoard] = useState(new godash.Board(19)); //to convert board string backend/socket data --> frontend representation
-  const boardStrArr = useRef(new Array(19 * 19)); // to convert board string frontend --> backend/socket data representation
+  const boardStrArr = useRef("0".repeat(19*19).split('')); // to convert board string frontend --> backend/socket data representation
 
   //player info.
   const [player1, setPlayer1] = useState("");
@@ -114,12 +114,16 @@ export default function Room(props) {
     console.log("RoomSocket onmessage running");
     const data = JSON.parse(e.data);
     console.log(data);
-    setPlayer1(data.player1);
-    setPlayer2(data.player2);
-    setPlayer1Color(data.player1Color);
-    setPlayer2Color(data.player2Color);
+
+    if ("player1" in data) setPlayer1(data.player1);
+    if ("player2" in data) setPlayer2(data.player2);
+
+    if ("player1Color" in data) setPlayer1Color(data.player1Color);
+    if ("player2Color" in data) setPlayer2Color(data.player2Color);
     // convert string representation of board --> Godash board to then render on this client
-    setBoard(getGodashBoard(data.board));
+    if ("board" in data) setBoard(getGodashBoard(data.board));
+
+    if ("turn" in data) setTurn(data.turn);
 
     // // if we received a an A.I.-based move
     // if (data.new_move_x != -1) {
@@ -137,7 +141,6 @@ export default function Room(props) {
     // else {
 
     // }
-    setTurn(data.turn);
   };
 
   roomSocket.onclose = function (e) {
@@ -163,14 +166,13 @@ export default function Room(props) {
     newBoard.moves
       .entrySeq()
       .forEach(
-        (move, ind) =>
-          (boardStrArr.current[ind] = move[1] == "black" ? "1" : "2")
+        (move) => {
+          // console.log(move);
+        boardStrArr.current[19 * move[0].y + move[0].x] = move[1] == "black" ? "1" : "2";
+        }
       );
   }
 
-  // function getBoardStr() {
-  //   board.m
-  // }
 
   //called every time a user joins the room
   useEffect((props) => {
@@ -183,9 +185,18 @@ export default function Room(props) {
       fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
         .then((response) => response.json())
         .then((responseJSON) => {
-          // console.log("fetch method inside useEffect being used");
+          console.log("fetch method inside useEffect being used");
+
+          // set to whoever's turn it is at the moment
+          // turn == true --> room creator goes first (and is black)
+          // turn == false --> room creator goes second (and is white)
+          setTurn(responseJSON.turn);
+          setAI(responseJSON.AI);
+
+          setIsHumanFirst(responseJSON.is_human_player_first);
           // do stuff with responseJSON here...
           //use let keyword inside of this function scope
+          console.log(responseJSON);
           let p1;
           let p2;
           //the first person who joins room = player 1, regardless of color piece chosen (both players have "TMP" in front)
@@ -196,9 +207,19 @@ export default function Room(props) {
             setCurPlayer("p1");
             setPlayer1(p1);
             setPlayer2(p2);
+
+            roomSocket.send(
+              JSON.stringify({
+                player1: p1,
+                board: responseJSON.board,
+                turn: responseJSON.turn,
+                isHumanPlayerFirst: responseJSON.is_human_player_first,
+              })
+            );
           }
 
           //if player 2 (as a human) joins next
+          // TODO this case
           else if (responseJSON.player2.substring(0, 3) == "TMP" && !AI) {
             //strip off "TMP" from player 2 and set it as player
             p1 = responseJSON.player1;
@@ -206,6 +227,18 @@ export default function Room(props) {
             setCurPlayer("p2");
             setPlayer1(p1);
             setPlayer2(p2);
+
+            roomSocket.send(
+              JSON.stringify({
+                player2: p2,
+                turn: responseJSON.AI
+                  ? responseJSON.turn
+                    ? responseJSON.turn.toString() + "W"
+                    : responseJSON.turn.toString() + "B"
+                  : responseJSON.turn.toString(),
+                board: responseJSON.board,
+              })
+            );
           }
 
           //Spectator Case (first two people/players have joined already -- so now anyone who joins is a spectator)
@@ -224,36 +257,58 @@ export default function Room(props) {
 
           //render and update board representations
           // do NOT switch the order of these! setBoard first, then update board string array second
-          setBoard(getGodashBoard(responseJSON.board));
-          updateBoardStrArr(board);
+          var godashBrdObj = getGodashBoard(responseJSON.board);
+          setBoard(godashBrdObj);
+          
+          // function needs to be re-instantiated her since useEffect is isolated from rest of code
+          function updateBoardStrArrInUseEffect(newBoard) {
+            console.log("updateBoardStrArrInUseEffect being called");
+            
+            // if there are any moves 
+            if(newBoard.moves.size > 0) {
+              // console.log(newBoard.moves.size);
+              newBoard.moves.entrySeq().forEach(
+                  (move, ind) => {
+                    // console.log(move);
+                    boardStrArr.current[ind] = move[1] === "black" ? "1" : "2";
+                  }
+                );
+            }
+            // // otherwise, we know that we are just starting the game/the board is empty
+            // else {
+            //   console.log("else called");
+            //   for(let i in boardStrArr) {
+            //     console.log(`Before @ ind. ${i}: ${boardStrArr.current[i]}`)
+            //     boardStrArr.current[i] = "0";
+            //     console.log(`After @ ind. ${i}: ${boardStrArr.current[i]}`)
+            //   }
+            }
+          
+          updateBoardStrArrInUseEffect(godashBrdObj);
 
-          // set to whoever's turn it is at the moment
-          // turn == true --> room creator goes first (and is black)
-          // turn == false --> room creator goes second (and is white)
-          setTurn(responseJSON.turn);
-          setIsHumanFirst(responseJSON.turn);
-          setAI(responseJSON.AI);
+          // console.log(`useEffect: board str array: ${boardStrArr.current}`)
+
 
           //for updating backend with new player names (from stripping off "TMP"s)
 
           // new question: how do you make it so that we recognize who is sending this roomSocket send
           // so that the A.I. doesn't play a move every single time this send is being made (from any client refreshing, any new client joining, etc.)?
-          roomSocket.send(
-            JSON.stringify({
-              player1: p1,
-              player2: p2,
-              player1Color: responseJSON.player1Color,
-              player2Color: responseJSON.player2Color,
-              turn: responseJSON.AI
-                ? responseJSON.turn
-                  ? responseJSON.turn.toString() + "W"
-                  : responseJSON.turn.toString() + "B"
-                : responseJSON.turn.toString(),
-              board: responseJSON.board,
-              // new_move_x: -1,
-              // new_move_y: -1,
-            })
-          );
+          // roomSocket.send(
+          //   JSON.stringify({
+          //     player1: p1,
+          //     player2: p2,
+          //     player1Color: responseJSON.player1Color,
+          //     player2Color: responseJSON.player2Color,
+          //     turn: responseJSON.AI
+          //       ? responseJSON.turn
+          //         ? responseJSON.turn.toString() + "W"
+          //         : responseJSON.turn.toString() + "B"
+          //       : responseJSON.turn.toString(),
+          //     board: responseJSON.board,
+          //     // new_move_x: -1,
+          //     // new_move_y: -1,
+          //   })
+          // );
         });
     }
     getRoom();
@@ -280,11 +335,14 @@ export default function Room(props) {
     //make board unclickable if it is not your turn
     // if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2")))
     // tried to make condition checking more readable
+    // all cases where clicking the board should be disabled
     if (
-      (turn && curPlayer === "p2") ||
-      (!turn && curPlayer === "p1") ||
-      curPlayer === "spectator"
-    ) {
+      (!AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1"))) ||
+      curPlayer === "spectator" ||isHumanFirst != turn) 
+    {
+      console.log(`AI:${AI}`);
+      console.log("Not allowed to click during the other player's turn!");
+      console.log("isHumanFirst, turn, current player");
       console.log(isHumanFirst, turn, curPlayer);
       return;
     }
@@ -297,6 +355,7 @@ export default function Room(props) {
 
       //update string array representation of board
       updateBoardStrArr(new_board);
+      console.log(`HandleCoordinateClick: board string arr: ${boardStrArr.current.toString()}`);
       // console.log(
       //   `coordinate: (${e[0].x}, ${
       //     e[0].y
@@ -310,11 +369,13 @@ export default function Room(props) {
           player2: player2,
           player1Color: player1Color,
           player2Color: player2Color,
-          turn: AI
-            ? isHumanFirst
-              ? (!turn).toString() + "B" // A.I. is playing black
-              : (!turn).toString() + "W" // A.I. is playing white
-            : (!turn).toString(),
+          turn: !turn,
+          isHumanPlayerFirst: isHumanFirst,
+          // turn: AI
+          //   ? isHumanFirst
+          //     ? (!turn).toString() + "B" // A.I. is playing black
+          //     : (!turn).toString() + "W" // A.I. is playing white
+          //   : (!turn).toString(),
           // new_move_x: coordinate.x,
           // new_move_y: coordinate.y,
           board: boardStrArr.current.join(""),
@@ -341,26 +402,36 @@ export default function Room(props) {
       if (curPlayer == "p1") {
         setPlayer1(e.target.value);
         p1 = e.target.value;
+        roomSocket.send(
+          JSON.stringify({
+            player1: p1,
+          })
+        );
       } else if (curPlayer == "p2") {
         setPlayer2(e.target.value);
         p2 = e.target.value;
+        roomSocket.send(
+          JSON.stringify({
+            player2: p2,
+          })
+        );
       } else {
         setPlayer1("TODO: Spectator Cases");
       }
 
       //for updating backend with new player name
-      roomSocket.send(
-        JSON.stringify({
-          player1: p1,
-          player2: p2,
-          player1Color: player1Color,
-          player2Color: player2Color,
-          turn: turn.toString(),
-          board: boardStrArr.current.join(""),
-          // new_move_x: -1,
-          // new_move_y: -1,
-        })
-      );
+      // roomSocket.send(
+      //   JSON.stringify({
+      //     player1: p1,
+      //     player2: p2,
+      //     player1Color: player1Color,
+      //     player2Color: player2Color,
+      //     turn: turn.toString(),
+      //     board: boardStrArr.current.join(""),
+      //     // new_move_x: -1,
+      //     // new_move_y: -1,
+      //   })
+      // );
       setNameForm(!nameForm);
     }
   }

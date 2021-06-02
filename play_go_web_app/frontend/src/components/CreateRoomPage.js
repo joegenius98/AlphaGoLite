@@ -135,7 +135,7 @@ class CreateRoomPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      turn: true,
+      isHumanPlayerFirst: true,
     };
 
     this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
@@ -144,7 +144,7 @@ class CreateRoomPage extends Component {
 
   handleTurnChange(val) {
     this.setState({
-      turn: val,
+      isHumanPlayerFirst: val,
     });
   }
 
@@ -161,12 +161,14 @@ class CreateRoomPage extends Component {
     // var myGrid = [...Array(19)].map((e) => Array(19).fill(value));
     // this.setState({ board: myGrid });
     console.log("Inside of CreateRoomPage right before sending off to room:");
-    console.log(`turn value is:${this.state.turn}`);
+    console.log(
+      `Is human player first?: ${this.state.isHumanPlayerFirst ? "yes" : "no"}`
+    );
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        turn: this.state.turn,
+        is_human_player_first: this.state.isHumanPlayerFirst,
         // board: JSON.stringify(myGrid),
         AI: AI,
       }),
@@ -188,14 +190,14 @@ class CreateRoomPage extends Component {
         <Grid item xs={12} spacing={3} align="center">
           <Grid container item xs={3} spacing={3}>
             <CustomizedButtons
-              turn={this.state.turn}
+              turn={this.state.isHumanPlayerFirst}
               change={this.handleTurnChange}
             />
           </Grid>
           <Grid container item xs={3} spacing={3} align="center">
             <React.Fragment>
               <Grid item xs={12}>
-                {this.state.turn ? (
+                {this.state.isHumanPlayerFirst ? (
                   <Typography component="h6" variant="h6">
                     Black
                   </Typography>

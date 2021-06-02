@@ -133,7 +133,7 @@ class LeaveRoom(APIView):
 class CreateRoomView(APIView):
     # convert JavaScript vars. to Python vars.
 
-    # fields = ('turn', 'board')
+    # fields = ('is_human_player_first', 'board')
     serializer_class = CreateRoomSerializer
 
     def post(self, request, format=None):
@@ -145,7 +145,8 @@ class CreateRoomView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             # retrieve data from serializer
-            turn = serializer.data.get('turn')
+            is_human_player_first = serializer.data.get(
+                'is_human_player_first')
 
             AI = serializer.data.get('AI')
 
@@ -158,24 +159,27 @@ class CreateRoomView(APIView):
 
             # if this user has already created a room
             # TODO: warn the user that he/she/whatever pronoun has an active game already
+            # and send the user to the already-active room
             if queryset.exists():
                 # simply update this room's settings
                 room = queryset[0]
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
-                room.turn = turn
-                room.AI = AI
-                # room.board = board
-                room.save(update_fields=["turn", "AI"])
+                # room.turn = turn
+                # room.AI = AI
+                # # room.board = board
+                # room.save(update_fields=["turn", "AI"])
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host, turn=turn, AI=AI)
+                room = Room(host=host, turn=True, AI=AI,
+                            is_human_player_first=is_human_player_first)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
 
-                logger.error(f"Turn value is: {room.turn}")
+                logger.error(
+                    f"Is human player first? : {room.is_human_player_first}")
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
         # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
