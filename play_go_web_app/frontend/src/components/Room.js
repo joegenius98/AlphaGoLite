@@ -61,7 +61,7 @@ export default function Room(props) {
 
   //board info.
   const [board, setBoard] = useState(new godash.Board(19)); //to convert board string backend/socket data --> frontend representation
-  const boardStrArr = useRef("0".repeat(19*19).split('')); // to convert board string frontend --> backend/socket data representation
+  const boardStrArr = useRef("0".repeat(19 * 19).split("")); // to convert board string frontend --> backend/socket data representation
 
   //player info.
   const [player1, setPlayer1] = useState("");
@@ -163,16 +163,12 @@ export default function Room(props) {
   }
 
   function updateBoardStrArr(newBoard) {
-    newBoard.moves
-      .entrySeq()
-      .forEach(
-        (move) => {
-          // console.log(move);
-        boardStrArr.current[19 * move[0].y + move[0].x] = move[1] == "black" ? "1" : "2";
-        }
-      );
+    newBoard.moves.entrySeq().forEach((move) => {
+      // console.log(move);
+      boardStrArr.current[19 * move[0].y + move[0].x] =
+        move[1] == "black" ? "1" : "2";
+    });
   }
-
 
   //called every time a user joins the room
   useEffect((props) => {
@@ -259,20 +255,18 @@ export default function Room(props) {
           // do NOT switch the order of these! setBoard first, then update board string array second
           var godashBrdObj = getGodashBoard(responseJSON.board);
           setBoard(godashBrdObj);
-          
+
           // function needs to be re-instantiated her since useEffect is isolated from rest of code
           function updateBoardStrArrInUseEffect(newBoard) {
             console.log("updateBoardStrArrInUseEffect being called");
-            
-            // if there are any moves 
-            if(newBoard.moves.size > 0) {
+
+            // if there are any moves
+            if (newBoard.moves.size > 0) {
               // console.log(newBoard.moves.size);
-              newBoard.moves.entrySeq().forEach(
-                  (move, ind) => {
-                    // console.log(move);
-                    boardStrArr.current[ind] = move[1] === "black" ? "1" : "2";
-                  }
-                );
+              newBoard.moves.entrySeq().forEach((move, ind) => {
+                // console.log(move);
+                boardStrArr.current[ind] = move[1] === "black" ? "1" : "2";
+              });
             }
             // // otherwise, we know that we are just starting the game/the board is empty
             // else {
@@ -282,12 +276,11 @@ export default function Room(props) {
             //     boardStrArr.current[i] = "0";
             //     console.log(`After @ ind. ${i}: ${boardStrArr.current[i]}`)
             //   }
-            }
-          
+          }
+
           updateBoardStrArrInUseEffect(godashBrdObj);
 
           // console.log(`useEffect: board str array: ${boardStrArr.current}`)
-
 
           //for updating backend with new player names (from stripping off "TMP"s)
 
@@ -336,9 +329,14 @@ export default function Room(props) {
     // if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2")))
     // tried to make condition checking more readable
     // all cases where clicking the board should be disabled
+
+    // prettier-ignore
+    //if there is no A.I. and the other human player attempts to go while the other playing is deciding a move
+    //OR if the spectator is trying to make a move
+    //OR
     if (
       (!AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1"))) ||
-      curPlayer === "spectator" ||isHumanFirst != turn) 
+      curPlayer === "spectator" || isHumanFirst != turn) 
     {
       console.log(`AI:${AI}`);
       console.log("Not allowed to click during the other player's turn!");
@@ -355,7 +353,9 @@ export default function Room(props) {
 
       //update string array representation of board
       updateBoardStrArr(new_board);
-      console.log(`HandleCoordinateClick: board string arr: ${boardStrArr.current.toString()}`);
+      console.log(
+        `HandleCoordinateClick: board string arr: ${boardStrArr.current.toString()}`
+      );
       // console.log(
       //   `coordinate: (${e[0].x}, ${
       //     e[0].y
