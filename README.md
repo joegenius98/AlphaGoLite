@@ -8,11 +8,15 @@ This repository holds code for the A.I. model I made for playing the board game 
 
 `cd play_go_web_app`
 
-## The backend:
+### The backend:
+
+On one terminal, perform:
 
 `python manage.py runserver`
 
-## The frontend
+### The frontend
+
+On a separate terminal, perform:
 
 `cd frontend`
 
