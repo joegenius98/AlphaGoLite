@@ -331,9 +331,10 @@ export default function Room(props) {
     // all cases where clicking the board should be disabled
 
     // prettier-ignore
+    // all cases where somebody attempts to make a move when it is not his/her/(whatever pronoun) turn
     //if there is no A.I. and the other human player attempts to go while the other playing is deciding a move
     //OR if the spectator is trying to make a move
-    //OR
+    //OR it is the A.I.'s turn and the human is trying to make move
     if (
       (!AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1"))) ||
       curPlayer === "spectator" || isHumanFirst != turn) 
