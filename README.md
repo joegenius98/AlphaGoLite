@@ -2,6 +2,8 @@
 
 This repository holds code for the A.I. model I made for playing the board game of Go. I am to develop the algorithms used to develop AlphaGo Zero, in a lite version. It also holds web application code for a Go-playing website where users can play against each other or play against the A.I.
 
+It is still a work in progress. 
+
 # How to Run
 
 `cd play_go_web_app`
