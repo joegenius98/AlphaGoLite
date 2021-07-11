@@ -134,7 +134,7 @@ class ChatConsumer(WebsocketConsumer):
         room.save(update_fields=["board", "turn",
                                  "player1Color", "player2Color",
                                  "player1", "player2"])
-    # Send message to room group
+        # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name, to_send)
         # {

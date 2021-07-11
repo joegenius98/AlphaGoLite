@@ -7,9 +7,9 @@ import {
   LinearProgress,
   Paper,
   Grid,
-  Select,
+  // Select,
   FormControl,
-  MenuItem,
+  // MenuItem,
   InputLabel,
   DialogTitle,
   DialogContent,
@@ -20,6 +20,8 @@ import {
   InputBase,
   Typography,
 } from "@material-ui/core";
+
+import { userColorChoices } from "./UserColors.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,7 +124,7 @@ export default function Room(props) {
     if ("player2Color" in data) setPlayer2Color(data.player2Color);
     // convert string representation of board --> Godash board to then render on this client
     if ("board" in data) setBoard(getGodashBoard(data.board));
-
+    // already checked that for sure, data.turn is a boolean and not a string
     if ("turn" in data) setTurn(data.turn);
 
     // // if we received a an A.I.-based move
@@ -144,6 +146,7 @@ export default function Room(props) {
   };
 
   roomSocket.onclose = function (e) {
+    console.error(e);
     console.error("Chat socket closed unexpectedly");
   };
 
@@ -227,11 +230,7 @@ export default function Room(props) {
             roomSocket.send(
               JSON.stringify({
                 player2: p2,
-                turn: responseJSON.AI
-                  ? responseJSON.turn
-                    ? responseJSON.turn.toString() + "W"
-                    : responseJSON.turn.toString() + "B"
-                  : responseJSON.turn.toString(),
+                turn: responseJSON.turn,
                 board: responseJSON.board,
               })
             );
@@ -336,7 +335,7 @@ export default function Room(props) {
     //OR if the spectator is trying to make a move
     //OR it is the A.I.'s turn and the human is trying to make move
     if (
-      (!AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1"))) ||
+      ( !AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1")) ) ||
       curPlayer === "spectator" || isHumanFirst != turn) 
     {
       console.log(`AI:${AI}`);
@@ -449,11 +448,15 @@ export default function Room(props) {
       if (rgb != player2Color) {
         p1 = rgb;
         setPlayer1Color(rgb);
+      } else {
+        console.log("You cannot select the same color as the opponent!");
       }
     } else if (curPlayer == "p2") {
       if (rgb != player1Color) {
         p2 = rgb;
         setPlayer2Color(rgb);
+      } else {
+        console.log("You cannot select the same color as the opponent!");
       }
     } else {
       //TODO: Spectator Case
@@ -468,7 +471,7 @@ export default function Room(props) {
         player2: player2,
         player1Color: p1,
         player2Color: p2,
-        turn: turn.toString(),
+        turn: turn,
         board: boardStrArr.current.join(""),
         // new_move_x: -1,
         // new_move_y: -1,
@@ -673,62 +676,34 @@ export default function Room(props) {
         <DialogContent>
           <Grid container spacing={1}>
             <Grid container item xs={6} spacing={3}>
-              <Grid item item xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#4791db" }}
-                  onClick={() => setColor("#4791db")}
-                >
-                  #4791db
-                </Paper>
-              </Grid>
-              <Grid item item xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#e33371" }}
-                  onClick={() => setColor("#e33371")}
-                >
-                  #e33371
-                </Paper>
-              </Grid>
-              <Grid item item xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#81c784" }}
-                  onClick={() => setColor("#81c784")}
-                >
-                  #81c784
-                </Paper>
-              </Grid>
+              {userColorChoices.slice(0, 3).map((hexColor) => {
+                return (
+                  <Grid item xs={12} spacing={3}>
+                    <Paper
+                      className={classes.paper}
+                      style={{ backgroundColor: hexColor }}
+                      onClick={() => setColor(hexColor)}
+                    >
+                      {hexColor}
+                    </Paper>
+                  </Grid>
+                );
+              })}
             </Grid>
             <Grid container item xs={6} spacing={3}>
-              <Grid item className={classes.paper} item xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#e57373" }}
-                  onClick={() => setColor("#e57373")}
-                >
-                  #e57373
-                </Paper>
-              </Grid>
-              <Grid item className={classes.paper} xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#ffb74d" }}
-                  onClick={() => setColor("#ffb74d")}
-                >
-                  #ffb74d
-                </Paper>
-              </Grid>
-              <Grid item className={classes.paper} xs={12} spacing={3}>
-                <Paper
-                  className={classes.paper}
-                  style={{ backgroundColor: "#64b5f6" }}
-                  onClick={() => setColor("#64b5f6")}
-                >
-                  #64b5f6
-                </Paper>
-              </Grid>
+              {userColorChoices.slice(3).map((hexColor) => {
+                return (
+                  <Grid item xs={12} spacing={3}>
+                    <Paper
+                      className={classes.paper}
+                      style={{ backgroundColor: hexColor }}
+                      onClick={() => setColor(hexColor)}
+                    >
+                      {hexColor}
+                    </Paper>
+                  </Grid>
+                );
+              })}
             </Grid>
           </Grid>
         </DialogContent>

@@ -145,6 +145,7 @@ class CreateRoomView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             # retrieve data from serializer
+            # prettier-ignore
             is_human_player_first = serializer.data.get(
                 'is_human_player_first')
 
@@ -178,8 +179,7 @@ class CreateRoomView(APIView):
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
 
-                logger.error(
-                    f"Is human player first? : {room.is_human_player_first}")
+                logger.error(f"Is human player first? : {room.is_human_player_first}")  # nopep8
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
         # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
