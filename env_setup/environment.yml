@@ -1,0 +1,12 @@
+name: alphagolite
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9.4
+  - django=3.2.3
+  - djangorestframework=3.12.4
+  - pip:
+      - channels==3.0.3
+      - channels-redis==3.2.0
+prefix: /opt/anaconda3/envs/alphagolite
