@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  main:
+    build: .
+    volumes:
+      - .:/alphagolite
+
+    stdin_open: true
+    tty: true
+    ports:
+      - 8000:8000
+  # TODO: figure out just the right dependencies
+  # to run a serivce called "flask_api" (e.g., pip Flask=2.0.1 and transformers=4.8.2)
+  # keeping in mind we need to load the stored weights, run the model, and send a response back to
+  # whoever made the API request
+  redis:
+    image: redis:5
+    ports:
+      - 6379:6379
