@@ -6,3 +6,4 @@ django_secrets.py
 db.sqlite3
 main.js
 main.js.LICENSE.txt
+.DS_Store
