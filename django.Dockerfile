@@ -25,15 +25,8 @@ FROM debian:buster
 
 
 COPY --from=build /venv /venv 
-# copy local main.py (in this directory) and move copy to the container's app folder 
-COPY test_tf.py alphagolite/test_tf.py
-# needed to pip install additional requirements
-# The reason I did not do pip installations inside the conda environment is that there would be versioning 
-# incompatabilities. Somehow though, no version incompatibilities occur when I pip install from requirements.txt 
-# after conda packing and unpacking. 
-COPY env_setup alpahgolite/env_setup
-COPY algorithms alphagolite/algorithms
-COPY play_go_web_app alphagolite/play_go_web_app
+WORKDIR /alphagolite
+COPY . .
 
 # activates virtual environment 
 # https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
@@ -44,16 +37,14 @@ ENV PATH="$PATH:${VIRTUAL_ENV}/bin"
 # WORKDIR /alphagolite/play_go_web_app/frontend
 
 # RUN yes | apt update && yes | apt install nodejs npm
-RUN npm --version 
+# RUN npm --version 
 
 # RUN npm i && npm run dev
 WORKDIR /alphagolite/play_go_web_app
 
-# An answer to the above comment (It works! Yay!)
 RUN echo "source /venv/bin/activate" >> /root/.bashrc
 
+RUN python3 manage.py makemigrations 
+RUN python3 manage.py migrate 
 
-# ensures that the Docker container is kept running 
-# to then develop inside the Docker environment (using volumes, specified in docker-compose.yml
-#, which you can use the bash terminal or use Visual Studio Code Docker extension
 ENTRYPOINT ["python3", "manage.py", "runserver"]
