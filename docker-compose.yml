@@ -1,9 +1,11 @@
 version: "3"
 
 services:
-  django:
-    container_name: root_source
-    build: django.Dockerfile
+  django_and_main:
+    container_name: django_and_main
+    build:
+      context: .
+      dockerfile: django.Dockerfile
     volumes:
       - .:/alphagolite
 
@@ -20,12 +22,14 @@ services:
 
   frontend:
     container_name: react_js
-    build: frontend.Dockerfile
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
     volumes:
-      - .:/alphagolite
+      - ./play_go_web_app/frontend:/frontend
 
     stdin_open: true
     tty: true
 
     depends_on:
-      - django
+      - django_and_main
