@@ -47,4 +47,4 @@ RUN echo "source /venv/bin/activate" >> /root/.bashrc
 RUN python3 manage.py makemigrations 
 RUN python3 manage.py migrate 
 
-ENTRYPOINT ["python3", "manage.py", "runserver"]
+ENTRYPOINT ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
