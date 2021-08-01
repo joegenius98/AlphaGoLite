@@ -12,13 +12,13 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - 8000:8000
+      - 127.0.0.1:8000:8000
 
   redis:
     container_name: sockets
     image: redis:5
     ports:
-      - 6379:6379
+      - 127.0.0.1:6379:6379
 
   frontend:
     container_name: react_js
