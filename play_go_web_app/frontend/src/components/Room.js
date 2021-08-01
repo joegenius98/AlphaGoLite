@@ -105,7 +105,7 @@ export default function Room(props) {
   // We assume this is because this React component gets re-rendered multiple times (6 times, probably)
   // when a user enter this room.
   const [roomSocket] = useState(
-    new WebSocket(`ws://0.0.0.0:8000/ws/rooms/${ROOM_CODE}/`)
+    new WebSocket(`ws://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
   );
 
   // const roomSocket = new WebSocket(
