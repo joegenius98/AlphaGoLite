@@ -80,6 +80,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
+            # name the first tuple entry the name of the redis container
             "hosts": [('sockets', 6379)],
         },
     },
