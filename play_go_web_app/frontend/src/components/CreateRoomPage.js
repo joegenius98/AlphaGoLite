@@ -5,6 +5,13 @@ import Typography from "@material-ui/core/Typography";
 import { Link } from "react-router-dom";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
+/*
+This component renders the "Create Room" page, with option to choose black or white
+and whether to play with a friend or with the A.I.
+
+Whichiever player (even the A.I.) that is black goes first.
+*/
+
 const useStyles = makeStyles((theme) => ({
   margin: {
     margin: theme.spacing(1),
@@ -26,7 +33,7 @@ const ColorButton = withStyles((theme) => ({
   },
 }))(Button);
 
-//ColorButton indicates the other, non-selected color piece with white background
+//NotColorButton renders the non-selected color piece with white background
 const NotColorButton = withStyles((theme) => ({
   root: {
     backgroundColor: "#fff",
@@ -66,6 +73,12 @@ function WhiteCircle() {
   );
 }
 
+/*
+ Renders choice of side black or white based
+on what user clicks.
+props.change = handleTurnChange in CreateRoomPage class
+props.turn = CreateRoomPage.state.isHumanPlayerFirst
+*/
 function CustomizedButtons(props) {
   const classes = useStyles();
 

@@ -45,6 +45,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/*
+This component renders a game room, with:
+  * a board to view live gameplay
+* usernames of the players (A.I. has auto-generated, distinguishable nickname)
+* color bars of their players (a personalization of the choice; this is apart
+  * from the color piece they are, black or white)
+  * TODO: a live chat room 
+*/
+
 function leaveButtonPressed(props) {
   console.log("Here are the props for leaveButtonPressed:");
   console.log(props);
@@ -173,7 +182,8 @@ export default function Room(props) {
     });
   }
 
-  //called every time a user joins the room
+  //called every time a user joins/returns back to the room
+  // TODO: fix problem where upon refresh, player is stuck as as a spectator
   useEffect((props) => {
     console.log("useEffect in use");
     function getRoom() {
@@ -181,6 +191,8 @@ export default function Room(props) {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       };
+
+      // load room details from database
       fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
         .then((response) => response.json())
         .then((responseJSON) => {
@@ -190,6 +202,7 @@ export default function Room(props) {
           // turn == true --> room creator goes first (and is black)
           // turn == false --> room creator goes second (and is white)
           setTurn(responseJSON.turn);
+          // the "AI" boolean (whether there is one)
           setAI(responseJSON.AI);
 
           setIsHumanFirst(responseJSON.is_human_player_first);
@@ -207,14 +220,16 @@ export default function Room(props) {
             setPlayer1(p1);
             setPlayer2(p2);
 
-            roomSocket.send(
-              JSON.stringify({
-                player1: p1,
-                board: responseJSON.board,
-                turn: responseJSON.turn,
-                isHumanPlayerFirst: responseJSON.is_human_player_first,
-              })
-            );
+            roomSocket.onopen = () => {
+              roomSocket.send(
+                JSON.stringify({
+                  player1: p1,
+                  board: responseJSON.board,
+                  turn: responseJSON.turn,
+                  isHumanPlayerFirst: responseJSON.is_human_player_first,
+                })
+              );
+            };
           }
 
           //if player 2 (as a human) joins next
@@ -227,13 +242,15 @@ export default function Room(props) {
             setPlayer1(p1);
             setPlayer2(p2);
 
-            roomSocket.send(
-              JSON.stringify({
-                player2: p2,
-                turn: responseJSON.turn,
-                board: responseJSON.board,
-              })
-            );
+            roomSocket.onopen = () => {
+              roomSocket.send(
+                JSON.stringify({
+                  player2: p2,
+                  turn: responseJSON.turn,
+                  board: responseJSON.board,
+                })
+              );
+            };
           }
 
           //Spectator Case (first two people/players have joined already -- so now anyone who joins is a spectator)
@@ -395,7 +412,8 @@ export default function Room(props) {
   }
 
   function changeName(e) {
-    e.stopPropagation();
+    e.stopPropagation(); // since the color bar customization is overlaid by the name display, we
+    // want to stop propagation from changing name to then color customization; we just want to change the name
     if (e.key === "Enter") {
       var p1 = player1;
       var p2 = player2;
@@ -502,6 +520,7 @@ export default function Room(props) {
             {/* wait until everything is fetched from the API first (render "Loading...") */}
             {player1 && player2 && player1Color && player2Color && curPlayer ? (
               <>
+                {/* if this client is p2 or spectator, render p1 at the top bar, otherwise at the bottom bar*/}
                 {curPlayer != "p1" ? (
                   <Paper
                     variant="outlined"

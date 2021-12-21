@@ -11,6 +11,11 @@ import {
   Redirect,
 } from "react-router-dom";
 
+/*
+This component renders the starting screen with buttons to join a room or create one yourself
+TODO: on componentDidMount(), fetch room code if user has a stored session
+*/
+
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
@@ -35,7 +40,7 @@ export default class HomePage extends Component {
       <Grid container spacing={3}>
         <Grid item xs={12} align="center">
           <Typography variant="h3" compact="h3">
-             House Party
+            Play Go!
           </Typography>
         </Grid>
         <Grid item xs={12} align="center">
