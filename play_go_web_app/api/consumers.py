@@ -8,28 +8,31 @@ import logging
 import random
 logger = logging.getLogger(__name__)
 
+'''
+Room group is defined as the players in the Go match and the spectators. 
+This module handles incoming data sent by the client front-end (e.g., a new move played or a new text in the chat)
+and ensures that the data is broadcasted to the room group.
+'''
+
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
+        # 'url_route' -> /ws/rooms/<uri> from routing.py; <uri> is the room code
         self.room_name = self.scope['url_route']['kwargs']['uri']
         self.room_group_name = 'chat_%s' % self.room_name
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)(self.room_group_name,
+                                                    self.channel_name)
 
         self.accept()
 
     def disconnect(self, close_code):
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_discard)(self.room_group_name,
+                                                        self.channel_name)
 
-    # Receive message from WebSocket
+    # Receive message from WebSocket and determine if A.I. needs to make a move
     def receive(self, text_data):
         to_send = {'type': 'room_details'}
 
@@ -60,9 +63,6 @@ class ChatConsumer(WebsocketConsumer):
             room.player2Color = player2Color
             to_send['player2Color'] = player2Color
 
-        # turn = True if text_data_json['turn'] == "True" else False <--- this line of code does not do what you think it does
-        # strangely enough, boolean values are not stringified, hence the next line of code is:
-
         if 'board' in text_data_json:
             board = text_data_json['board']
             room.board = board
@@ -75,6 +75,8 @@ class ChatConsumer(WebsocketConsumer):
 
                 if 'isHumanPlayerFirst' in text_data_json:
                     is_human_player_first = text_data_json['isHumanPlayerFirst']
+
+                    # if it's the A.I.'s turn
                     if turn != is_human_player_first:
                         self.random_move(
                             "2" if is_human_player_first else "1", room)
@@ -82,6 +84,14 @@ class ChatConsumer(WebsocketConsumer):
                         to_send['board'] = room.board
                         # we switch it over to the human player
                         to_send['turn'] = not turn
+
+        room.save(update_fields=["board", "turn",
+                                 "player1Color", "player2Color",
+                                 "player1", "player2"])
+        # Send message to room group
+        # nopep8
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name, to_send)
 
         # # AI case: B if AI move should be black and W if AI move should be white
         # AI = False
@@ -103,8 +113,8 @@ class ChatConsumer(WebsocketConsumer):
         #     logger.error(str(text_data_json))
         #     turn = True
 
-        if 'asdfasdf' not in text_data_json:
-            print('woo we mama this works! Woo-hoo!')
+        # if 'asdfasdf' not in text_data_json:
+        #     print('woo we mama this works! Woo-hoo!')
 
         # if AI:
         #     turn = not turn
@@ -131,12 +141,6 @@ class ChatConsumer(WebsocketConsumer):
         # if AI:
         #     self.random_move(ai_is_black, room)
 
-        room.save(update_fields=["board", "turn",
-                                 "player1Color", "player2Color",
-                                 "player1", "player2"])
-        # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, to_send)
         # {
         #     'type': 'room_details',
         #     'player1': room.player1,

@@ -45,8 +45,7 @@ class GetRoom(APIView):
 
 class JoinRoom(APIView):
     """    
-    Redirect Spectators
-    if they want to join a room
+    Redirect spectators if they want to join a room
     """
     lookup_JSON_key = 'code'
 
