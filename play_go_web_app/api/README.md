@@ -14,4 +14,4 @@ This part of the multiplayer Go web app. explains the files in `api`.
 
 6. [`urls.py`](./urls.py) provide the gateways to the database operations in 5. 
 
-The difference between [`urls.py`](./urls.py) and [`routing.py`](./routing.py) is that sockets handle real-time communication for a Go match while this file stores the changes in the database so that if a completely new user joins the room, that user can see what is going on. (If I just did sockets, I would have no persistent storage for newcomers to the room. If I just had a database, there would be many `API` calls happening at once, potentially not allowing real-time communication.
+The difference between [`urls.py`](./urls.py) and [`routing.py`](./routing.py) is that sockets handle real-time communication for a Go match while this file stores the changes in the database so that if a completely new user joins the room, that user can see what is going on. If I just did sockets, I would have no persistent storage to fetch room details for newcomers. If I just had a database, there would be many `API` calls happening at once, potentially not allowing real-time communication.
