@@ -91,11 +91,17 @@ export default function Room(props) {
   const [isHumanFirst, setIsHumanFirst] = useState(false);
 
   // facilitating changing player's info.
-  const [nameForm, setNameForm] = useState(true);
-  const [open, setOpen] = React.useState(false);
+  const [nameForm, setNameForm] = useState(true); // boolean to toggle on/off name changing 
+  const [open, setOpen] = useState(false); // boolean as to whether to display color customization options
 
   //room info.
-  const ROOM_CODE = window.location.pathname.substring(6);
+  const ROOM_CODE = window.location.pathname.slice(
+    window.location.pathname.lastIndexOf("/") + 1
+  );
+
+  const roomSocket = useRef(
+    new WebSocket(`ws://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
+  );
 
   const handleChange = (event) => {
     setAge(Number(event.target.value) || "");
@@ -109,19 +115,11 @@ export default function Room(props) {
     setOpen(false);
   };
 
-  // roomSocket instantiated with useState because otherwise,
-  // the same room would possess six sockets instead of one. (seen by console logging)
-  // We assume this is because this React component gets re-rendered multiple times (6 times, probably)
-  // when a user enter this room.
-  const [roomSocket] = useState(
-    new WebSocket(`ws://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
-  );
-
-  // const roomSocket = new WebSocket(
-  //   "ws://" + window.location.host + "/ws/rooms/" + ROOM_CODE + "/"
-  // );
-
-  roomSocket.onmessage = function (e) {
+  /*
+    called upon every time an update to the room is made to send 
+    to other people in the same room
+  */
+  roomSocket.current.onmessage = function (e) {
     console.log("RoomSocket onmessage running");
     const data = JSON.parse(e.data);
     console.log(data);
@@ -136,25 +134,9 @@ export default function Room(props) {
     // already checked that for sure, data.turn is a boolean and not a string
     if ("turn" in data) setTurn(data.turn);
 
-    // // if we received a an A.I.-based move
-    // if (data.new_move_x != -1) {
-    //   setBoard(
-    //     godash.addMove(
-    //       board,
-    //       new godash.Coordinate(data.new_move_x, data.new_move_y),
-    //       // if black just made a move, it is white's turn (turn == false)
-    //       turn == isHumanFirst ? godash.WHITE : godash.BLACK
-    //     )
-    //   );
-    // }
-
-    // // otherwise, we know that
-    // else {
-
-    // }
   };
 
-  roomSocket.onclose = function (e) {
+  roomSocket.current.onclose = function (e) {
     console.error(e);
     console.error("Chat socket closed unexpectedly");
   };
@@ -174,6 +156,10 @@ export default function Room(props) {
     return toRet;
   }
 
+  /*
+  This method called upon a click by a player to update 
+  the board character array to send to the Django backend.
+  */
   function updateBoardStrArr(newBoard) {
     newBoard.moves.entrySeq().forEach((move) => {
       // console.log(move);
@@ -193,6 +179,7 @@ export default function Room(props) {
       };
 
       // load room details from database
+      console.log(ROOM_CODE);
       fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
         .then((response) => response.json())
         .then((responseJSON) => {
@@ -220,16 +207,20 @@ export default function Room(props) {
             setPlayer1(p1);
             setPlayer2(p2);
 
-            roomSocket.onopen = () => {
-              roomSocket.send(
-                JSON.stringify({
-                  player1: p1,
-                  board: responseJSON.board,
-                  turn: responseJSON.turn,
-                  isHumanPlayerFirst: responseJSON.is_human_player_first,
-                })
-              );
-            };
+            console.log(roomSocket.current);
+
+            let data = JSON.stringify({
+              player1: p1,
+              board: responseJSON.board,
+              turn: responseJSON.turn,
+              isHumanPlayerFirst: responseJSON.is_human_player_first,
+            });
+
+            if (roomSocket.current.readyState == WebSocket.OPEN)
+              roomSocket.current.send(data);
+            else if (roomSocket.current.readyState == WebSocket.CONNECTING)
+              // prettier-ignore
+              roomSocket.current.addEventListener("open", event => roomSocket.current.send(data));
           }
 
           //if player 2 (as a human) joins next
@@ -242,15 +233,18 @@ export default function Room(props) {
             setPlayer1(p1);
             setPlayer2(p2);
 
-            roomSocket.onopen = () => {
-              roomSocket.send(
-                JSON.stringify({
-                  player2: p2,
-                  turn: responseJSON.turn,
-                  board: responseJSON.board,
-                })
-              );
-            };
+            let data = JSON.stringify({
+              player1: p1,
+              board: responseJSON.board,
+              turn: responseJSON.turn,
+              isHumanPlayerFirst: responseJSON.is_human_player_first,
+            });
+
+            if (roomSocket.current.readyState == WebSocket.OPEN)
+              roomSocket.current.send(data);
+            else if (roomSocket.current.readyState == WebSocket.CONNECTING)
+              // prettier-ignore
+              roomSocket.current.addEventListener("open", (event) => roomSocket.current.send(data));
           }
 
           //Spectator Case (first two people/players have joined already -- so now anyone who joins is a spectator)
@@ -272,7 +266,7 @@ export default function Room(props) {
           var godashBrdObj = getGodashBoard(responseJSON.board);
           setBoard(godashBrdObj);
 
-          // function needs to be re-instantiated her since useEffect is isolated from rest of code
+          // function needs to be re-instantiated here since useEffect is isolated from rest of code
           function updateBoardStrArrInUseEffect(newBoard) {
             console.log("updateBoardStrArrInUseEffect being called");
 
@@ -284,40 +278,10 @@ export default function Room(props) {
                 boardStrArr.current[ind] = move[1] === "black" ? "1" : "2";
               });
             }
-            // // otherwise, we know that we are just starting the game/the board is empty
-            // else {
-            //   console.log("else called");
-            //   for(let i in boardStrArr) {
-            //     console.log(`Before @ ind. ${i}: ${boardStrArr.current[i]}`)
-            //     boardStrArr.current[i] = "0";
-            //     console.log(`After @ ind. ${i}: ${boardStrArr.current[i]}`)
-            //   }
           }
 
           updateBoardStrArrInUseEffect(godashBrdObj);
 
-          // console.log(`useEffect: board str array: ${boardStrArr.current}`)
-
-          //for updating backend with new player names (from stripping off "TMP"s)
-
-          // new question: how do you make it so that we recognize who is sending this roomSocket send
-          // so that the A.I. doesn't play a move every single time this send is being made (from any client refreshing, any new client joining, etc.)?
-          // roomSocket.send(
-          //   JSON.stringify({
-          //     player1: p1,
-          //     player2: p2,
-          //     player1Color: responseJSON.player1Color,
-          //     player2Color: responseJSON.player2Color,
-          //     turn: responseJSON.AI
-          //       ? responseJSON.turn
-          //         ? responseJSON.turn.toString() + "W"
-          //         : responseJSON.turn.toString() + "B"
-          //       : responseJSON.turn.toString(),
-          //     board: responseJSON.board,
-          //     // new_move_x: -1,
-          //     // new_move_y: -1,
-          //   })
-          // );
         });
     }
     getRoom();
@@ -331,21 +295,17 @@ export default function Room(props) {
       }
       leaveRoom(props);
     };
-  }, []);
-  // const annotations = [new godash.Coordinate(2, 2)];
+  }, []); //empty array ensures that useEffect is only ran upon inital rendering of room, not with every re-render (e.g. it
+  // occurs whenever a React state changes)
 
   var new_board = null;
   var colorPiece = null;
 
-  // const roomName = window.location.pathname;
-
+  /*
+  handles cursor click to make a move on Go board and then passes onto
+  socket to send new move information across all viewers and the other player (including AI)
+  */
   function handleCoordinateClick(coordinate) {
-    // console.log(coordinate);
-    //make board unclickable if it is not your turn
-    // if (!((turn && curPlayer == "p1") || (!turn && curPlayer == "p2")))
-    // tried to make condition checking more readable
-    // all cases where clicking the board should be disabled
-
     // prettier-ignore
     // all cases where somebody attempts to make a move when it is not his/her/(whatever pronoun) turn
     //if there is no A.I. and the other human player attempts to go while the other playing is deciding a move
@@ -380,24 +340,21 @@ export default function Room(props) {
       // )
 
       //for updating backend with new board and to send to other clients too
-      roomSocket.send(
-        JSON.stringify({
-          player1: player1,
-          player2: player2,
-          player1Color: player1Color,
-          player2Color: player2Color,
-          turn: !turn,
-          isHumanPlayerFirst: isHumanFirst,
-          // turn: AI
-          //   ? isHumanFirst
-          //     ? (!turn).toString() + "B" // A.I. is playing black
-          //     : (!turn).toString() + "W" // A.I. is playing white
-          //   : (!turn).toString(),
-          // new_move_x: coordinate.x,
-          // new_move_y: coordinate.y,
-          board: boardStrArr.current.join(""),
-        })
-      );
+      let data = JSON.stringify({
+        player1: player1,
+        player2: player2,
+        player1Color: player1Color,
+        player2Color: player2Color,
+        turn: !turn,
+        isHumanPlayerFirst: isHumanFirst,
+        board: boardStrArr.current.join(""),
+      });
+
+      if (roomSocket.current.readyState == WebSocket.OPEN)
+        roomSocket.current.send(data);
+      else
+        // prettier-ignore
+        roomSocket.current.addEventListener("open", (event) => roomSocket.current.send(data));
       setTurn(!turn);
 
       console.log("Board stats under handleCoordinateClick");
@@ -411,45 +368,41 @@ export default function Room(props) {
     }
   }
 
+  // customization function to change the name of one's player
   function changeName(e) {
     e.stopPropagation(); // since the color bar customization is overlaid by the name display, we
     // want to stop propagation from changing name to then color customization; we just want to change the name
     if (e.key === "Enter") {
-      var p1 = player1;
-      var p2 = player2;
-      if (curPlayer == "p1") {
+      let p1 = player1;
+      let p2 = player2;
+      if (curPlayer == "p1") //prettier-ignore 
+      {
         setPlayer1(e.target.value);
         p1 = e.target.value;
-        roomSocket.send(
-          JSON.stringify({
-            player1: p1,
-          })
-        );
-      } else if (curPlayer == "p2") {
+        if (roomSocket.current.readyState == WebSocket.OPEN)
+          roomSocket.current.send(JSON.stringify({player1: p1})); //prettier-ignore
+        else
+          roomSocket.current.addEventListener(
+            "open", roomSocket.current.send(JSON.stringify({player1: p1}))); //prettier-ignore
+        //prettier-ignore
+      }
+      //prettier-ignore
+      else if (curPlayer == "p2") 
+      {
         setPlayer2(e.target.value);
         p2 = e.target.value;
-        roomSocket.send(
-          JSON.stringify({
-            player2: p2,
-          })
-        );
-      } else {
-        setPlayer1("TODO: Spectator Cases");
+        if (roomSocket.current.readyState == WebSocket.OPEN)
+          roomSocket.current.send(JSON.stringify({player2: p2})); //prettier-ignore
+        else
+          roomSocket.current.addEventListener(
+            "open", roomSocket.current.send(JSON.stringify({player2: p2})) //prettier-ignore
+          );
+      } 
+      // prettier-ignore
+      else {
+        alert("TODO: Spectator Cases");
       }
 
-      //for updating backend with new player name
-      // roomSocket.send(
-      //   JSON.stringify({
-      //     player1: p1,
-      //     player2: p2,
-      //     player1Color: player1Color,
-      //     player2Color: player2Color,
-      //     turn: turn.toString(),
-      //     board: boardStrArr.current.join(""),
-      //     // new_move_x: -1,
-      //     // new_move_y: -1,
-      //   })
-      // );
       setNameForm(!nameForm);
     }
   }
@@ -459,42 +412,51 @@ export default function Room(props) {
     setNameForm(!nameForm);
   }
 
+  // customization function to change the color of a player's bar color surrounding name
   function setColor(rgb) {
-    var p1 = player1Color;
-    var p2 = player2Color;
-    if (curPlayer == "p1") {
+    if (curPlayer == "p1") //prettier-ignore
+    {
       if (rgb != player2Color) {
-        p1 = rgb;
+        let p1Col = rgb;
         setPlayer1Color(rgb);
+
+        
+        if (roomSocket.current.readyState == WebSocket.OPEN)
+          roomSocket.current.send(JSON.stringify({player1Color: p1Col})); //prettier-ignore
+        else
+          roomSocket.current.addEventListener(
+            "open", roomSocket.current.send(JSON.stringify({player1Color: p1Col})) //prettier-ignore
+          );
+
       } else {
         console.log("You cannot select the same color as the opponent!");
       }
-    } else if (curPlayer == "p2") {
+    } 
+    
+    else if (curPlayer == "p2") // prettier-ignore
+    {
       if (rgb != player1Color) {
-        p2 = rgb;
+        let p2Col = rgb;
         setPlayer2Color(rgb);
+
+        if (roomSocket.current.readyState == WebSocket.OPEN)
+          roomSocket.current.send(JSON.stringify({player2Color: p2Col})); //prettier-ignore
+        else
+          roomSocket.current.addEventListener(
+            "open", roomSocket.current.send(JSON.stringify({player2Color: p2Col})) //prettier-ignore
+          );
+
       } else {
-        console.log("You cannot select the same color as the opponent!");
+        alert("You cannot select the same color as the opponent!");
       }
-    } else {
+    } 
+    
+    else // prettier-ignore
+    {
       //TODO: Spectator Case
-      console.log(
-        "You Are considered a spectator. Change Color will not work for now :("
-      );
+      alert("You are a spectator. You shan't change the color of players.");
     }
 
-    roomSocket.send(
-      JSON.stringify({
-        player1: player1,
-        player2: player2,
-        player1Color: p1,
-        player2Color: p2,
-        turn: turn,
-        board: boardStrArr.current.join(""),
-        // new_move_x: -1,
-        // new_move_y: -1,
-      })
-    );
     handleClose();
   }
   return (
@@ -503,6 +465,7 @@ export default function Room(props) {
         <Grid container xs={12} sm={8}>
           <Grid item xs={12} sm={12}>
             <Paper style={{ backgroundColor: "white", color: "black" }}>
+              {/* TODO: figure out what linear progress bar is for */}
               <LinearProgress
                 variant="determinate"
                 value={65}
@@ -690,7 +653,9 @@ export default function Room(props) {
         </Grid>
       </Grid>
 
-      <Dialog disableEscapeKeyDown open={open} onClose={handleClose}>
+        {/* disableEscapeKeyDown is not needed as Dialog param. (I think); users should have
+        a choice in exiting out if they do not desire to change their color*/}
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Pick A Color</DialogTitle>
         <DialogContent>
           <Grid container spacing={1}>
