@@ -1,5 +1,6 @@
 .vscode
 .node
+.env
 node_modules/
 __pycache__/
 django_secrets.py
