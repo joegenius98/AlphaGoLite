@@ -75,7 +75,12 @@ function WhiteCircle() {
 
 /*
  Renders choice of side black or white based
-on what user clicks.
+on what user clicks. the default is side black. 
+ColorButton is rendered for the side you choose and
+NotcolorButton is rendered for the side you don't choose.
+
+Parameters
+----------
 props.change = handleTurnChange in CreateRoomPage class
 props.turn = CreateRoomPage.state.isHumanPlayerFirst
 */
@@ -163,16 +168,9 @@ class CreateRoomPage extends Component {
 
   /*
   parameter "AI" tells whether the player wants to face the A.I. 
+  This method sends a POST request to the Django view method of creating a room
   */
   handleRoomButtonPressed(AI) {
-    /*
-    -Do we want the initial board to be created by the host in the frontend,
-    or do we want the board created in the backend? 
-    -Note: turn==true => host/player1 goes first
-    */
-    // var value = 0; // by default
-    // var myGrid = [...Array(19)].map((e) => Array(19).fill(value));
-    // this.setState({ board: myGrid });
     console.log("Inside of CreateRoomPage right before sending off to room:");
     console.log(
       `Is human player first?: ${this.state.isHumanPlayerFirst ? "yes" : "no"}`

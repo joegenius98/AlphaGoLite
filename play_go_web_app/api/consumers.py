@@ -8,14 +8,14 @@ import logging
 import random
 logger = logging.getLogger(__name__)
 
-'''
-Room group is defined as the players in the Go match and the spectators. 
-This module handles incoming data sent by the client front-end (e.g., a new move played or a new text in the chat)
-and ensures that the data is broadcasted to the room group.
-'''
-
 
 class ChatConsumer(WebsocketConsumer):
+    '''
+    Room group is defined as the players in the Go match and the spectators. 
+    This module handles incoming data sent by the client front-end (e.g., a new move played or a new text in the chat)
+    and ensures that the data is broadcasted to the room group.
+    '''
+
     def connect(self):
         # 'url_route' -> /ws/rooms/<uri> from routing.py; <uri> is the room code
         self.room_name = self.scope['url_route']['kwargs']['uri']
