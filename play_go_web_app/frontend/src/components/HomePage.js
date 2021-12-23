@@ -25,15 +25,16 @@ export default class HomePage extends Component {
     this.clearRoomCode = this.clearRoomCode.bind(this);
   }
 
-  // async componentDidMount() {
-  //   fetch("/api/user-in-room")
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       this.setState({
-  //         roomCode: data.code,
-  //       });
-  //     });
-  // }
+  /* head directly to the room if user has a current session */
+  async componentDidMount() {
+    fetch("/api/user-in-room")
+      .then((response) => response.json())
+      .then((data) => {
+        this.setState({
+          roomCode: data.code,
+        });
+      });
+  }
 
   renderHomePage() {
     return (
