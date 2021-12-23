@@ -12,6 +12,10 @@ It is still a work in progress.
 
 On one terminal, perform:
 
+`python manage.py makemigrations` (only if you made database/Django model changes)
+
+`python manage.py migrate` (only if you made database/Django model changes)
+
 `python manage.py runserver`
 
 ### The frontend
