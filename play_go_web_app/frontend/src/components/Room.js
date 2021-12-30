@@ -179,7 +179,6 @@ export default function Room(props) {
       };
 
       // load room details from database
-      console.log(ROOM_CODE);
       fetch("/api/get-room" + "?code=" + ROOM_CODE, requestOptions)
         .then((response) => response.json())
         .then((responseJSON) => {
