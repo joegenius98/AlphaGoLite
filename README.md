@@ -18,7 +18,7 @@ If you plan on running `docker-compose.yml`, create an`.env` file on this projec
 
 ## Local Way
 
-`cd play_go_web_app`
+`cd play_go_web_app` on two different terminals.
 
 ### The backend:
 
@@ -36,13 +36,18 @@ On one terminal, perform:
 
 ### The frontend
 
-Install `Node.js`(https://nodejs.org/en/download/).
+Install [`Node.js`](https://nodejs.org/en/download/).
 
 On a separate terminal, perform:
 
 `cd frontend`
 
 `npm install` (for getting `package.json` dependencies)
+On the other terminal, perform:
+
+`cd frontend`
+
+`npm install`
 
 `npm run dev`
 
