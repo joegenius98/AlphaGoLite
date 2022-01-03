@@ -1,3 +1,10 @@
+# Files
+
+| File                                                  | Description                                                                                                                                                                   |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [mcts.py](algorithms/mcts.py)                         | holds the MonteCarloTree class that is responsible for the underlying data structures and algorithms to ultimately run the big algorithm in the room: Monte Carlo Tree Search |
+| [politer-selfplay.py](algorithms/politer-selfplay.py) | responsible for the policy iteration algorithm and executing each episode, all for the purpose of training and updating the neural network involved                           |
+
 # How the Training Pipeline Works
 
 This is the understanding to our best knowledge.
