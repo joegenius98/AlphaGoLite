@@ -82,7 +82,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             # name the first tuple entry the name of the redis container
             # source: https://stackoverflow.com/questions/55385085/deploy-django-channels-with-docker
-            "hosts": [('sockets', 6379)],
+            "hosts": [('localhost', 6379)],
         },
     },
 }

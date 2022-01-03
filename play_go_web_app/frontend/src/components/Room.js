@@ -171,6 +171,13 @@ export default function Room(props) {
   // TODO: fix problem where upon refresh, player is stuck as as a spectator
   useEffect((props) => {
     console.log("useEffect in use");
+    function leaveRoom() {
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        };
+        fetch("/api/leave-room", requestOptions).then((_response) => {});
+    };
     function getRoom() {
       const requestOptions = {
         method: "GET",
@@ -281,20 +288,16 @@ export default function Room(props) {
             }
           }
 
-          updateBoardStrArrInUseEffect(godashBrdObj);
-
+          // updateBoardStrArrInUseEffect(godashBrdObj);
+          console.log(boardStrArr.current.toString());
         });
     }
     getRoom();
+
+  
+    // window.addEventListener("beforeunload", leaveRoom);
     return () => {
-      function leaveRoom() {
-        const requestOptions = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        };
-        fetch("/api/leave-room", requestOptions).then((_response) => {});
-      }
-      leaveRoom(props);
+      // window.removeEventListener("beforeunload", leaveRoom);
     };
   }, []); //empty array ensures that useEffect is only ran upon inital rendering of room, not with every re-render (e.g. it
   // occurs whenever a React state changes)
@@ -325,12 +328,13 @@ export default function Room(props) {
       return;
     }
     try {
+      
       colorPiece =  curPlayer === "p1" ? (
         p1Turn.current === true ? godash.BLACK : godash.WHITE) : (p2Turn.current === true ? godash.BLACK : godash.WHITE)
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
+      
       setBoard(new_board);
-
       //update string array representation of board
       updateBoardStrArr(new_board);
       console.log(
