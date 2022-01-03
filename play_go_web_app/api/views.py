@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
+from .serializers import RoomSerializer, CreateRoomSerializer
 from .models import Room
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,11 +20,10 @@ class RoomView(generics.ListAPIView):
 
 class CreateRoomView(APIView):
     """
-    CreateRoomView takes in a user request and data (whether to include AI whether the human player is first)
-    Whether the human player goes first is based on whether user selected black.
+    CreateRoomView takes in a user request and data (whether to include AI whether player 1/the room creator goes first)
+    If player 1 selected black --> goes first, so player 1's turn value = True. Otherwise, player1_turn = False.
     """
     # this serializer helps convert JavaScript vars. to Python vars.
-    # fields = ('is_human_player_first', 'board')
     serializer_class = CreateRoomSerializer
 
     def post(self, request, format=None):
@@ -36,11 +35,10 @@ class CreateRoomView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             # retrieve data from serializer
-            is_human_player_first = serializer.data.get('is_human_player_first')  # nopep8
+            p1_turn = serializer.data.get('player1_turn')  # nopep8
+            logger.error(f"This is player 1 turn value: {p1_turn}")
 
             AI = serializer.data.get('AI')
-
-            # board = serializer.data.get('board')
 
             # # retrieve session key
             host = self.request.session.session_key
@@ -62,13 +60,13 @@ class CreateRoomView(APIView):
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host, turn=True, AI=AI,
-                            is_human_player_first=is_human_player_first)
+                room = Room(host=host, curr_turn=True, AI=AI,
+                            player1_turn=p1_turn, player2_turn=not p1_turn)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
                 self.request.session['room_code'] = room.code
 
-                logger.error(f"Is human player first? : {room.is_human_player_first}")  # nopep8
+                logger.error(f"Is player 1 first? : {room.player1_turn}")  # nopep8
                 return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
         # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
@@ -111,8 +109,8 @@ class GetRoom(APIView):
 
 
 class JoinRoom(APIView):
-    """    
-    Redirect spectators if they want to join a room
+    """
+    Redirect spectators or player 2 if they want to join a room
     """
     lookup_JSON_key = 'code'
 
@@ -131,57 +129,6 @@ class JoinRoom(APIView):
             return Response({'Bad Request': 'Invalid Room Code'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'Bad Request': 'Invalid post data, did not find a code key'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UpdateRoom(APIView):
-
-    serializer_class = UpdateRoomSerializer
-
-    def post(self, request, format=None):
-        if not self.request.session.exists(self.request.session.session_key):
-            self.request.session.create()
-
-        # take in data from JavaScript request --> Python-readable
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            # retrieve data from serializer
-            code = serializer.data.get('code')
-            queryset = Room.objects.filter(code=code)
-
-            if not queryset.exists():
-                return Response({'msg': 'Room not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-            player1 = serializer.data.get('player1')
-            player2 = serializer.data.get('player2')
-
-            turn = serializer.data.get('turn')
-
-            player1Color = serializer.data.get('player1Color')
-            player2Color = serializer.data.get('player2Color')
-
-            num_spectators = serializer.data.get('num_spectators')
-            board = serializer.data.get('board')
-            spectatorArray = serializer.data.get('spectatorArray')
-
-            room = queryset[0]
-            # # save room code so that when a user exits and comes back, user can come back to the same room
-            # self.request.session['room_code'] = room.code
-            room.player1 = player1
-
-            room.player2 = player2
-
-            room.turn = turn
-            room.player1Color = player1Color
-            room.player2Color = player2Color
-
-            room.num_spectators = num_spectators
-            room.board = board
-            room.spectatorArray = spectatorArray
-            room.save(update_fields=["board", "turn",
-                                     "player1Color", "player2Color", "player1", "player2", "spectatorArray", "num_spectators"])
-            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
-        # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
-        return Response({'Bad Request' + str(serializer.errors) + str(serializer.is_valid()): 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LeaveRoom(APIView):

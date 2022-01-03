@@ -82,7 +82,7 @@ NotcolorButton is rendered for the side you don't choose.
 Parameters
 ----------
 props.change = handleTurnChange in CreateRoomPage class
-props.turn = CreateRoomPage.state.isHumanPlayerFirst
+props.turn = CreateRoomPage.state.p1Turn
 */
 function CustomizedButtons(props) {
   const classes = useStyles();
@@ -152,8 +152,13 @@ class CreateRoomPage extends Component {
   defaultVotes = 2;
   constructor(props) {
     super(props);
+    // true <--> black color chosen
+    // false <--> white color chosen
+    // this is because black always goes first before white
+    // Also, the creator of the room is player 1. Thsi boolean helps with determining
+    // when to play/turn logic.
     this.state = {
-      isHumanPlayerFirst: true,
+      p1Turn: true,
     };
 
     this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
@@ -162,7 +167,7 @@ class CreateRoomPage extends Component {
 
   handleTurnChange(val) {
     this.setState({
-      isHumanPlayerFirst: val,
+      p1Turn: val,
     });
   }
 
@@ -172,16 +177,13 @@ class CreateRoomPage extends Component {
   */
   handleRoomButtonPressed(AI) {
     console.log("Inside of CreateRoomPage right before sending off to room:");
-    console.log(
-      `Is human player first?: ${this.state.isHumanPlayerFirst ? "yes" : "no"}`
-    );
+    console.log(`Does player 1 go first?: ${this.state.p1Turn ? "yes" : "no"}`);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        is_human_player_first: this.state.isHumanPlayerFirst,
-        // board: JSON.stringify(myGrid),
-        AI: AI,
+        player1_turn: this.state.p1Turn,
+        AI: AI, // for clarity, the AI is always player 2
       }),
     };
     fetch("/api/create-room", requestOptions)
@@ -201,14 +203,14 @@ class CreateRoomPage extends Component {
         <Grid item xs={12} spacing={3} align="center">
           <Grid container item xs={3} spacing={3}>
             <CustomizedButtons
-              turn={this.state.isHumanPlayerFirst}
+              turn={this.state.p1Turn}
               change={this.handleTurnChange}
             />
           </Grid>
           <Grid container item xs={3} spacing={3} align="center">
             <React.Fragment>
               <Grid item xs={12}>
-                {this.state.isHumanPlayerFirst ? (
+                {this.state.p1Turn ? (
                   <Typography component="h6" variant="h6">
                     Black
                   </Typography>

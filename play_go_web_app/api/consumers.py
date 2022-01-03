@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ChatConsumer(WebsocketConsumer):
     '''
-    Room group is defined as the players in the Go match and the spectators. 
+    Room group is defined as the players in the Go match and the spectators.
     This module handles incoming data sent by the client front-end (e.g., a new move played or a new text in the chat)
     and ensures that the data is broadcasted to the room group.
     '''
@@ -35,6 +35,7 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket and determine if A.I. needs to make a move
     def receive(self, text_data):
         to_send = {'type': 'room_details'}
+        changed_fields = []  # to minimze the amount we send
 
         code = self.room_name
         queryset = Room.objects.filter(code=code)
@@ -47,47 +48,61 @@ class ChatConsumer(WebsocketConsumer):
             player1 = text_data_json['player1']
             room.player1 = player1
             to_send['player1'] = player1
+            changed_fields.append("player1")
 
         if 'player2' in text_data_json:
             player2 = text_data_json['player2']
             room.player2 = player2
             to_send['player2'] = player2
+            changed_fields.append("player2")
 
         if 'player1Color' in text_data_json:
             player1Color = text_data_json['player1Color']
             room.player1Color = player1Color
             to_send['player1Color'] = player1Color
+            changed_fields.append("player1_color")
 
         if 'player2Color' in text_data_json:
             player2Color = text_data_json['player2Color']
             room.player2Color = player2Color
             to_send['player2Color'] = player2Color
+            changed_fields.append("player2_color")
 
+        # if board was sent through a socket, that means we're swtching players (from handleCoordinateClick in Room.js)
+        # and we must use p2Turn, currTurn, AI, and board vars to
+        # A. update the board
+        # # and
+        # B. let the A.I. to make a move if needed
+        # and
+        # C. update the curent turn
         if 'board' in text_data_json:
+            # A. update the board
             board = text_data_json['board']
             room.board = board
             to_send['board'] = board
+            changed_fields.append("board")
 
-            if 'turn' in text_data_json:
-                turn = text_data_json['turn']
-                room.turn = turn
-                to_send['turn'] = turn
+            # B. obtain current turn value to determine whether A.I. exists/needs to make a move
+            curr_turn = text_data_json['currTurn']  # placeholder
+            changed_fields.append("curr_turn")
+            # player 2's turn value (the A.I. is always player 2)
+            p2_turn = text_data_json["p2Turn"]
 
-                if 'isHumanPlayerFirst' in text_data_json:
-                    is_human_player_first = text_data_json['isHumanPlayerFirst']
+            # B. if the A.I. exists and it is its turn
+            if text_data_json["AI"] == True and p2_turn == curr_turn:
+                # 1 <--> black, 2 <--> white
+                self.random_move("1" if p2_turn else "2", room)  # nopep8
+                # since a new move = updated board
+                to_send['board'] = room.board
 
-                    # if it's the A.I.'s turn
-                    if turn != is_human_player_first:
-                        self.random_move(
-                            "2" if is_human_player_first else "1", room)
-                        # since a new move = updated board
-                        to_send['board'] = room.board
-                        # we switch it over to the human player
-                        to_send['turn'] = not turn
+                # we switch it over to player 1's turn value
+                curr_turn = not curr_turn
 
-        room.save(update_fields=["board", "turn",
-                                 "player1Color", "player2Color",
-                                 "player1", "player2"])
+            # C. update current turn value
+            to_send['currTurn'] = curr_turn
+            room.curr_turn = curr_turn
+
+        room.save(update_fields=changed_fields)
         # Send message to room group
         # nopep8
         async_to_sync(self.channel_layer.group_send)(

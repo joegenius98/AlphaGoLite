@@ -41,21 +41,27 @@ class Room(models.Model):
         default=randomNameP2, max_length=50)
 
     # stored as hex codes
-    player1Color = models.CharField(max_length=7, default=pickRandomColor)
-    player2Color = models.CharField(max_length=7, default=pickRandomColor)
+    player1_color = models.CharField(max_length=7, default=pickRandomColor)
+    player2_color = models.CharField(max_length=7, default=pickRandomColor)
 
     # store the number of people in a room
     num_spectators = models.IntegerField(default=0, null=False)
 
-    # turn == True ==> player 1 is going
-    # turn == False ==> player 2 is going
-    turn = models.BooleanField(null=False, default=False)
+    # this value is True at start of game and switches for every person's turn
+    # we determine who goes first by comparing this value with the turn
+    # booleans for player 1 and player 2
+    curr_turn = models.BooleanField(null=False, default=True)
+    # True <--> black piece, False <--> white piece, since black always goes first before white does
+    # By default, player 1 (the person creating the game) chooses black and therefore has a turn value of true.
+    # If player 1 chooses white instead, then player 2 goes first since player 2 is black.
+    player1_turn = models.BooleanField(null=False, default=True)
+    player2_turn = models.BooleanField(null=False, default=False)
 
     # whether the human player is facing an A.I.
     AI = models.BooleanField(null=False, default=False)
 
-    # self-explanatory (whether or not there is an A.I. -- helps with determining turn)
-    is_human_player_first = models.BooleanField(null=False, default=False)
+    # # self-explanatory (whether or not there is an A.I. -- helps with determining turn)
+    # is_human_player_first = models.BooleanField(null=False, default=False)
 
     # when the room/model was created
     created_at = models.DateTimeField(auto_now_add=True)
@@ -71,7 +77,7 @@ class Room(models.Model):
         max_length=765, unique=False, default="0" * 19 * 19)
 
     # spectators
-    spectatorArray = models.CharField(
+    spectator_list = models.CharField(
         max_length=275, unique=False, default="[]")
     """
     Home Page

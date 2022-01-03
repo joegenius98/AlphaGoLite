@@ -79,16 +79,15 @@ export default function Room(props) {
   const [player2, setPlayer2] = useState("");
   const [player1Color, setPlayer1Color] = useState("null");
   const [player2Color, setPlayer2Color] = useState("null");
-  const [turn, setTurn] = useState(true);
+  const [currTurn, setCurrTurn] = useState(true);
   const [curPlayer, setCurPlayer] = useState("null");
-  const [age, setAge] = React.useState("");
+  // const [age, setAge] = React.useState("");
 
   // for A.I. player
-  const [AI, setAI] = useState(false);
-  // tells the human player's stance
-  // isHumanFirst == true ==> human player chose black and therefore goes first
-  // isHumanFirst == false ==> human player chose white (in CreateRoomPage) and therefore goes second
-  const [isHumanFirst, setIsHumanFirst] = useState(false);
+  const AI = useRef(false);
+  // boolean values, compared to currTurn value to determine whose turn it is
+  const p1Turn = useRef(false);
+  const p2Turn  = useRef(false);
 
   // facilitating changing player's info.
   const [nameForm, setNameForm] = useState(true); // boolean to toggle on/off name changing 
@@ -132,7 +131,7 @@ export default function Room(props) {
     // convert string representation of board --> Godash board to then render on this client
     if ("board" in data) setBoard(getGodashBoard(data.board));
     // already checked that for sure, data.turn is a boolean and not a string
-    if ("turn" in data) setTurn(data.turn);
+    if ("currTurn" in data) setCurrTurn(data.currTurn);
 
   };
 
@@ -184,14 +183,13 @@ export default function Room(props) {
         .then((responseJSON) => {
           console.log("fetch method inside useEffect being used");
 
-          // set to whoever's turn it is at the moment
-          // turn == true --> room creator goes first (and is black)
-          // turn == false --> room creator goes second (and is white)
-          setTurn(responseJSON.turn);
+          // currTurn value: True at first and then switches for every player's turn
+          setCurrTurn(responseJSON.curr_turn);
           // the "AI" boolean (whether there is one)
-          setAI(responseJSON.AI);
+          AI.current = responseJSON.AI;
+          p1Turn.current = responseJSON.player1_turn;
+          p2Turn.current = responseJSON.player2_turn;
 
-          setIsHumanFirst(responseJSON.is_human_player_first);
           // do stuff with responseJSON here...
           //use let keyword inside of this function scope
           console.log(responseJSON);
@@ -206,15 +204,22 @@ export default function Room(props) {
             setPlayer1(p1);
             setPlayer2(p2);
 
+            
+            let data = {player1: p1};
+            
+            // Let the A.I. make the move if it exists and it is its turn
+            if (AI.current)
+            {
+              data.board = responseJSON.board;
+              data.currTurn = currTurn;
+              data.p2Turn = p2Turn.current;
+              data.AI = true;
+            }
+            
+            data = JSON.stringify(data);
+            console.log(data);
+            
             console.log(roomSocket.current);
-
-            let data = JSON.stringify({
-              player1: p1,
-              board: responseJSON.board,
-              turn: responseJSON.turn,
-              isHumanPlayerFirst: responseJSON.is_human_player_first,
-            });
-
             if (roomSocket.current.readyState == WebSocket.OPEN)
               roomSocket.current.send(data);
             else if (roomSocket.current.readyState == WebSocket.CONNECTING)
@@ -224,7 +229,7 @@ export default function Room(props) {
 
           //if player 2 (as a human) joins next
           // TODO this case
-          else if (responseJSON.player2.substring(0, 3) == "TMP" && !AI) {
+          else if (responseJSON.player2.substring(0, 3) == "TMP" && !AI.current) {
             //strip off "TMP" from player 2 and set it as player
             p1 = responseJSON.player1;
             p2 = responseJSON.player2.substring(3);
@@ -233,10 +238,7 @@ export default function Room(props) {
             setPlayer2(p2);
 
             let data = JSON.stringify({
-              player1: p1,
-              board: responseJSON.board,
-              turn: responseJSON.turn,
-              isHumanPlayerFirst: responseJSON.is_human_player_first,
+              player2: p2,
             });
 
             if (roomSocket.current.readyState == WebSocket.OPEN)
@@ -257,8 +259,8 @@ export default function Room(props) {
           }
 
           //render the player colors onto screen
-          setPlayer1Color(responseJSON.player1Color);
-          setPlayer2Color(responseJSON.player2Color);
+          setPlayer1Color(responseJSON.player1_color);
+          setPlayer2Color(responseJSON.player2_color);
 
           //render and update board representations
           // do NOT switch the order of these! setBoard first, then update board string array second
@@ -311,18 +313,20 @@ export default function Room(props) {
     //OR if the spectator is trying to make a move
     //OR it is the A.I.'s turn and the human is trying to make move
     if (
-      ( !AI && ((turn && curPlayer === "p2") || (!turn && curPlayer === "p1")) ) ||
-      curPlayer === "spectator" || isHumanFirst != turn) 
+      (!AI.current && (
+      (curPlayer === "p1" && currTurn != p1Turn.current) || (curPlayer === "p2" && currTurn != p2Turn.current))) ||
+      curPlayer === "spectator" || player2.substring(0, 3) == "TMP") 
     {
-      console.log(`AI:${AI}`);
+      console.log(player2);
+      console.log(`AI:${AI.current}`);
       console.log("Not allowed to click during the other player's turn!");
-      console.log("isHumanFirst, turn, current player");
-      console.log(isHumanFirst, turn, curPlayer);
+      console.log("p2Turn, currTurn, current player");
+      console.log(p2Turn.current, currTurn, curPlayer);
       return;
     }
     try {
-      colorPiece = turn ? godash.BLACK : godash.WHITE;
-      // colorPiece = turn == isHumanFirst ? godash.BLACK : godash.WHITE;
+      colorPiece =  curPlayer === "p1" ? (
+        p1Turn.current === true ? godash.BLACK : godash.WHITE) : (p2Turn.current === true ? godash.BLACK : godash.WHITE)
       new_board = godash.addMove(board, coordinate, colorPiece);
       // this setBoard was here to trigger a re-render so that all clients (people who view the room) can have the board updated.
       setBoard(new_board);
@@ -339,22 +343,20 @@ export default function Room(props) {
       // )
 
       //for updating backend with new board and to send to other clients too
+      // of course we need to update the current turn value for this frontend as well
       let data = JSON.stringify({
-        player1: player1,
-        player2: player2,
-        player1Color: player1Color,
-        player2Color: player2Color,
-        turn: !turn,
-        isHumanPlayerFirst: isHumanFirst,
+        AI: AI.current,
+        currTurn: !currTurn,
+        p2Turn: p2Turn.current,
         board: boardStrArr.current.join(""),
       });
+      setCurrTurn(!currTurn);
 
       if (roomSocket.current.readyState == WebSocket.OPEN)
         roomSocket.current.send(data);
       else
         // prettier-ignore
         roomSocket.current.addEventListener("open", (event) => roomSocket.current.send(data));
-      setTurn(!turn);
 
       console.log("Board stats under handleCoordinateClick");
       console.log(new_board.toString());
@@ -483,14 +485,14 @@ export default function Room(props) {
             {player1 && player2 && player1Color && player2Color && curPlayer ? (
               <>
                 {/* if this client is p2 or spectator, render p1 at the top bar, otherwise at the bottom bar*/}
-                {curPlayer != "p1" ? (
+                {curPlayer !== "p1" ? (
                   <Paper
                     variant="outlined"
                     style={{
                       backgroundColor: player1Color,
                       color: "black",
                       width: "61.5%",
-                      border: !turn ? "transparent" : "2px solid black",
+                      border: currTurn == p2Turn.current ? "2px solid black" : "transparent",
                       borderRadius: "2px",
                     }}
                   >
@@ -509,17 +511,17 @@ export default function Room(props) {
                       backgroundColor: player2Color,
                       color: "black",
                       width: "61.5%",
-                      border: turn ? "transparent" : "2px solid black",
+                      border: currTurn == p1Turn.current ? "2px solid black" : "transparent",
                       borderRadius: "0px",
                     }}
                     square
                   >
                     <FormControl>
                       <Typography>
-                        {player2.substr(0, 3) == "TMP"
+                        {player2.substring(0, 3) == "TMP"
                           ? "Waiting for Opponent to Join..."
                           : player2}{" "}
-                        {AI ? "🤖" : "🗿"}
+                        {AI.current ? "🤖" : "🗿"}
                       </Typography>
                     </FormControl>
                   </Paper>
@@ -548,13 +550,13 @@ export default function Room(props) {
           <Grid container justify="center" xs={12} sm={12}>
             {player1 && player2 && player1Color && player2Color && curPlayer ? (
               <>
-                {curPlayer == "p1" ? (
+                {curPlayer === "p1" ? (
                   <Paper
                     style={{
                       backgroundColor: player1Color,
                       color: player1Color,
                       width: "61.5%",
-                      border: !turn ? "transparent" : "2px solid black",
+                      border:currTurn == p1Turn.current ? "2px solid black" : "transparent",
                       borderRadius: "2px",
                     }}
                     onClick={() =>
@@ -589,7 +591,7 @@ export default function Room(props) {
                       backgroundColor: player2Color,
                       color: player2Color,
                       width: "61.5%",
-                      border: turn ? "transparent" : "2px solid black",
+                      border: currTurn == p2Turn.current ? "2px solid black" : "transparent",
                       borderRadius: "2px",
                     }}
                     onClick={() => (nameForm ? handleClickOpen() : null)}
