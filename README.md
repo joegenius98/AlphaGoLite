@@ -33,7 +33,9 @@ On one terminal, perform:
 On the other terminal, perform:
 
 `cd frontend`
+
 `npm install`
+
 `npm run dev`
 
 # Structure
