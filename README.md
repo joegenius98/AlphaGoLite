@@ -10,6 +10,8 @@ Inside of [`play_go_web_app/play_go_web_app`](play_go_web_app/play_go_web_app), 
 
 Otherwise, simply get rid of the `import .django_secrets ...` statement in [`settings.py`](play_go_web_app/play_go_web_app/settings.py) and the corresponding variables and make the secret key an empty string. `ALLOWED_HOSTS` can just be an empty list.
 
+**Note: [`Docker`](https://www.docker.com/get-started) is needed no matter if you run the Docker way or the local way. You need Docker at least for installing `redis`, which enables socket functionality.**
+
 ## Docker Way
 
 If you plan on running `docker-compose.yml`, create an`.env` file on this project's directory and set `SECRET_HOST` to whatever you desire (e.g., a website domain for deployment).
@@ -20,21 +22,33 @@ If you plan on running `docker-compose.yml`, create an`.env` file on this projec
 
 ### The backend:
 
+`cd play_go_web_app` again
+
+In `settings.py`, in `CHANNEL_LAYERS`, change `'sockets'` -> `'localhost'`
+
 On one terminal, perform:
 
-`python manage.py makemigrations` (only if you made database/Django model changes)
+`python manage.py makemigrations` (also run this with every Django model change)
 
-`python manage.py migrate` (only if you made database/Django model changes)
+`python manage.py migrate` (also run this with every Django model change)
 
 `python manage.py runserver`
 
 ### The frontend
 
+Install `Node.js`(https://nodejs.org/en/download/).
+
 On a separate terminal, perform:
 
 `cd frontend`
 
+`npm install` (for getting `package.json` dependencies)
+
 `npm run dev`
+
+### Redis
+
+`docker run -p 6379:6379 -d redis:5 `
 
 # Structure
 
