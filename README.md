@@ -16,7 +16,7 @@ If you plan on running `docker-compose.yml`, create an`.env` file on this projec
 
 ## Local Way
 
-`cd play_go_web_app`
+`cd play_go_web_app` on two different terminals.
 
 ### The backend:
 
@@ -30,10 +30,10 @@ On one terminal, perform:
 
 ### The frontend
 
-On a separate terminal, perform:
+On the other terminal, perform:
 
 `cd frontend`
-
+`npm install`
 `npm run dev`
 
 # Structure
