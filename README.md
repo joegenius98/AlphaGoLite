@@ -71,7 +71,7 @@ On the other terminal, perform:
 
 
 
-
+# Planning Considerations
 
 Path 1: implement game as we found on GitHub
 - benefits: easier to do that way, and it would be faster
