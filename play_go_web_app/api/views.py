@@ -101,9 +101,13 @@ class GetRoom(APIView):
                 if room[0].AI:
                     room[0].player2 = "Cyborg Tuna 10"
                 data = RoomSerializer(room[0]).data
+
+                # if the room creator was previously in room, we add "TMP"
+                # so that the frontend think that that person is still player 1
                 if self.request.session.session_key == room[0].host:
                     data['is_host'] = True
-                    data["player1"]="TMP"+data["player1"] if "TMP"!=data["player1"][:3] else data["player1"]
+                    data["player1"] = "TMP" + \
+                        data["player1"] if "TMP" != data["player1"][:3] else data["player1"]
                 else:
                     data['is_host'] = False
                 data['is_host'] = self.request.session.session_key == room[0].host
@@ -137,8 +141,10 @@ class JoinRoom(APIView):
 
 
 class LeaveRoom(APIView):
+    """Deletes the room from the database when either player decides to leave"""
+
     def post(self, request, format=None):
-        if 'room_code' in self.request.session: 
+        if 'room_code' in self.request.session:
             self.request.session.pop('room_code')
             host_id = self.request.session.session_key
             room_results = Room.objects.filter(host=host_id)
