@@ -42,6 +42,7 @@ class CreateRoomView(APIView):
 
             # # retrieve session key
             host = self.request.session.session_key
+
             # retrieve unique room from unique session key
             queryset = Room.objects.filter(host=host)
 
@@ -97,19 +98,33 @@ class GetRoom(APIView):
         code = request.GET.get(self.lookup_url_kwarg)
         if code != None:
             room = Room.objects.filter(code=code)
+
             if len(room) > 0:
                 if room[0].AI:
                     room[0].player2 = "Cyborg Tuna 10"
                 data = RoomSerializer(room[0]).data
 
-                # if the room creator was previously in room, we add "TMP"
-                # so that the frontend think that that person is still player 1
-                if self.request.session.session_key == room[0].host:
-                    data['is_host'] = True
+                print(room[0].host1, self.request.session.session_key)
+                # if there is no player 2 yet
+                if room[0].host1 == "NONE" and self.request.session.session_key != room[0].host:
+                    # we get the session key of player 2
+                    # if not self.request.session.exists(self.request.session.session_key):
+                    #     self.request.session.create()
+                    room[0].host1 = self.request.session.session_key
+                    room[0].save()
+
+                # if the session key has been created and it's the same as the browser's session key
+                elif room[0].host1 == self.request.session.session_key:
+                    # we add "TMP" so that the frontend recognizes player2
+                    # if-else might be redundant, but is here for robustness
+                    data["player2"] = "TMP" + \
+                        data["player2"] if "TMP" != data["player2"][:3] else data["player2"]
+
+                elif room[0].host == self.request.session.session_key:
+                    # if-else might be redundant, but is here for robustness
                     data["player1"] = "TMP" + \
                         data["player1"] if "TMP" != data["player1"][:3] else data["player1"]
-                else:
-                    data['is_host'] = False
+
                 data['is_host'] = self.request.session.session_key == room[0].host
                 return Response(data, status=status.HTTP_200_OK)
             return Response({'Room Not Found': 'Invalid Room Code.'}, status=status.HTTP_404_NOT_FOUND)

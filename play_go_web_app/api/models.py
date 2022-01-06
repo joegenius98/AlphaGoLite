@@ -31,10 +31,14 @@ def randomNameP1():
 class Room(models.Model):
     code = models.CharField(
         max_length=8, default=generate_unique_code)
-
+        
+    #session key for player 1
     host = models.CharField(max_length=50, unique=True)
 
-    # user names of the players
+    #session key for player 2
+    host1 = models.CharField(max_length=50, unique=False, default='NONE')
+
+    # user names of the players, initalized with "TMP"
     player1 = models.CharField(
         default=randomNameP1, max_length=50)
     player2 = models.CharField(

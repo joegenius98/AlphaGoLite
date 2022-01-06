@@ -6,7 +6,7 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('id', 'code', 'player1', 'player2', 'player1_color', 'player2_color',
-                  'num_spectators', 'curr_turn', 'host', 'created_at', "board", 'player1_turn', 'player2_turn', "spectator_list", "AI")
+                  'num_spectators', 'curr_turn', 'host','host1', 'created_at', "board", 'player1_turn', 'player2_turn', "spectator_list", "AI")
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):
