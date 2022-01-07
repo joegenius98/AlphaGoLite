@@ -14,6 +14,11 @@ Otherwise, simply get rid of the `import .django_secrets ...` statement in [`set
 
 ## Docker Way
 
+**TODO**
+Figure out how to install `Git` in a `Dockerfile`, clone Aigagror's `GymGo` GitHub repo., and then `pip install -e .`
+once the `Conda` environment has been activated.
+**end TODO**
+
 If you plan on running `docker-compose.yml`, create an`.env` file on this project's directory and set `SECRET_HOST` to whatever you desire (e.g., a website domain for deployment).
 
 ## Local Way
