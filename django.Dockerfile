@@ -34,12 +34,7 @@ ENV VIRTUAL_ENV=/venv
 ENV PATH="$PATH:${VIRTUAL_ENV}/bin"
 
 
-# WORKDIR /alphagolite/play_go_web_app/frontend
 
-# RUN yes | apt update && yes | apt install nodejs npm
-# RUN npm --version 
-
-# RUN npm i && npm run dev
 WORKDIR /alphagolite/play_go_web_app
 
 RUN echo "source /venv/bin/activate" >> /root/.bashrc
