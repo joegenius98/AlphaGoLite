@@ -1,52 +1,62 @@
 import gym
 import gogame
 from utils import *
-from neuralnet import *
+# from neuralnet import *
 
 # we can change these args as we go
 args = dotdict({
     'numIters': 1000,
-    'numEps': 100,              # Number of complete self-play games to simulate during a new iteration.
+    # Number of complete self-play games to simulate during a new iteration.
+    'numEps': 100,
     'tempThreshold': 15,        #
-    'updateThreshold': 0.6,     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-    'maxlenOfQueue': 200000,    # Number of game examples to train the neural networks.
+    # During arena playoff, new neural net will be accepted if threshold or more of games are won.
+    'updateThreshold': 0.6,
+    # Number of game examples to train the neural networks.
+    'maxlenOfQueue': 200000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
-    'arenaCompare': 40,         # Number of games to play during arena play to determine if new net will be accepted.
+    # Number of games to play during arena play to determine if new net will be accepted.
+    'arenaCompare': 40,
     'cpuct': 1,
 
     'checkpoint': './temp/',
     'load_model': False,
-    'load_folder_file': ('/dev/models/8x100x50','best.pth.tar'),
+    'load_folder_file': ('/dev/models/8x100x50', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
 })
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     go_env = gym.make('gym_go:go-v0', size=19, komi=0, reward_method='real')
-    go_env.reset() #this is necessary
+    # initialize the environment
+    go_env.reset()  # this is necessary
 
-    nnet = AlphaGoLite_Network()
+    # nnet = AlphaGoLite_Network()
 
-    print(go_env.state().invalid_moves())
+    # print(go_env.state_)
+    # prints an array, 1 being valid, 0 being occupied
+    print("\nValid moves: \n")
+    print(go_env.valid_moves(),
+          f"{type(go_env.valid_moves())} {go_env.valid_moves().shape}\n")
 
+    # initial_state_copy = go_env.state()
 
-"""    
-    initial_state_copy=go_env.state()
+    # # visual representation of board
+    # print(gogame.str(initial_state_copy))
 
-    print(gogame.str(initial_state_copy))
+    first_action = (18, 18)
+    second_action = (5, 2)
 
-    first_action = (2,5)
-    second_action = (5,2)
-
-    # the state is a class of instance go game. We can use 
+    # the state is a class of instance go game. We can use
     # this state to perform mcts and evaluation.
     state, reward, done, info = go_env.step(first_action)
-    state, reward, done, info = go_env.step(second_action)
+    # state, reward, done, info = go_env.step(second_action)
 
-    go_env.state_=initial_state_copy
+    print("go_env.render('terminal'):\n")
 
-    print(go_env.state_)
-    
     go_env.render('terminal')
-"""
+    print(go_env.valid_moves())
+
+    valid_moves = go_env.valid_moves()[:-1].reshape((19, 19))
+
+    assert valid_moves[18, 18] == 0.

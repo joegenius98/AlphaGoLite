@@ -7,6 +7,10 @@ dependencies:
   - django=3.2.3
   - djangorestframework=3.12.4
   - pip
+  - gym=0.21.0
+  - scipy=1.7.1
+  - scikit-learn=1.0.1
+  - pyglet=1.5.16
   - pip:
       - channels==3.0.3
       - channels-redis==3.2.0
