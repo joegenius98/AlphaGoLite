@@ -11,6 +11,8 @@ dependencies:
   - scipy=1.7.1
   - scikit-learn=1.0.1
   - pyglet=1.5.16
+  - treelib=1.6.1
+  - ipython
   - pip:
       - channels==3.0.3
       - channels-redis==3.2.0
