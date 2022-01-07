@@ -68,3 +68,20 @@ On the other terminal, perform:
 
 - [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project.
 - [Django channels tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
+
+
+
+# Planning Considerations
+
+Path 1: implement game as we found on GitHub
+- benefits: easier to do that way, and it would be faster
+- downsides: less readable and might be less applicable to those in the reinforcement learning community
+
+Path 2: implementing in Gym
+- adding features like the .render() method, so that you can watch the neural net training
+- provides value to the A.I. research community 
+
+
+
+Bottlenecks:
+- ...

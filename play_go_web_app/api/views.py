@@ -61,7 +61,7 @@ class CreateRoomView(APIView):
                 # return Response --> CreateRoomPage.js's fetch method (reponse) => response.json
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
             else:  # otherwise, create a new room
-                room = Room(host=host,curr_turn=True, AI=AI,
+                room = Room(host=host, curr_turn=True, AI=AI,
                             player1_turn=p1_turn, player2_turn=not p1_turn)
                 room.save()  # save to the SQLite database
                 # save room code so that when a user exits and comes back, user can come back to the same room
@@ -103,25 +103,27 @@ class GetRoom(APIView):
                 if room[0].AI:
                     room[0].player2 = "Cyborg Tuna 10"
                 data = RoomSerializer(room[0]).data
-                
-                print(room[0].host1,self.request.session.session_key)
+
+                print(room[0].host1, self.request.session.session_key)
                 # if there is no player 2 yet
-                if room[0].host1 == "NONE" and self.request.session.session_key!=room[0].host:
+                if room[0].host1 == "NONE" and self.request.session.session_key != room[0].host:
                     # we get the session key of player 2
                     # if not self.request.session.exists(self.request.session.session_key):
                     #     self.request.session.create()
-                    room[0].host1=self.request.session.session_key
+                    room[0].host1 = self.request.session.session_key
                     room[0].save()
 
                 # if the session key has been created and it's the same as the browser's session key
                 elif room[0].host1 == self.request.session.session_key:
                     # we add "TMP" so that the frontend recognizes player2
                     # if-else might be redundant, but is here for robustness
-                    data["player2"]="TMP"+data["player2"] if "TMP"!=data["player2"][:3] else data["player2"]
+                    data["player2"] = "TMP" + \
+                        data["player2"] if "TMP" != data["player2"][:3] else data["player2"]
 
                 elif room[0].host == self.request.session.session_key:
                     # if-else might be redundant, but is here for robustness
-                    data["player1"]="TMP"+data["player1"] if "TMP"!=data["player1"][:3] else data["player1"]
+                    data["player1"] = "TMP" + \
+                        data["player1"] if "TMP" != data["player1"][:3] else data["player1"]
 
                 data['is_host'] = self.request.session.session_key == room[0].host
                 return Response(data, status=status.HTTP_200_OK)
@@ -154,8 +156,10 @@ class JoinRoom(APIView):
 
 
 class LeaveRoom(APIView):
+    """Deletes the room from the database when either player decides to leave"""
+
     def post(self, request, format=None):
-        if 'room_code' in self.request.session: 
+        if 'room_code' in self.request.session:
             self.request.session.pop('room_code')
             host_id = self.request.session.session_key
             room_results = Room.objects.filter(host=host_id)
