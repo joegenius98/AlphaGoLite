@@ -3,7 +3,9 @@ import numpy as np
 
 class MonteCarloTree:
 
-    def __init__(self):
+    def __init__(self, game, nnet):
+        self.game=game
+        self.nnet=nnet
         self.__state_to_actions = {} # dictionary constructor (double-check on this)
         self.__Q_vals = {}
 

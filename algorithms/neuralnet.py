@@ -1,5 +1,4 @@
 from tensorflow.keras import Input, Model
-from sklearn.datasets import load_iris
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
 from keras.initializers import glorot_uniform
 import numpy as np
@@ -58,7 +57,7 @@ def policy_head(X):
     return X
 
 
-def AlphaGo_Zero_Network():
+def AlphaGoLite_Network():
   inputs = Input(shape=(19,19,17))
   # 1 convolutional layer
   X = convolutional_layer(inputs)
