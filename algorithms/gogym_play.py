@@ -45,18 +45,33 @@ if __name__ == "__main__":
     # print(gogame.str(initial_state_copy))
 
     first_action = (18, 18)
-    second_action = (5, 2)
+    second_action = (0, 0)
 
     # the state is a class of instance go game. We can use
     # this state to perform mcts and evaluation.
     state, reward, done, info = go_env.step(first_action)
-    # state, reward, done, info = go_env.step(second_action)
-
     print("go_env.render('terminal'):\n")
 
     go_env.render('terminal')
+    print('\nvalid moves:\n')
     print(go_env.valid_moves())
 
+    print(f"gogame turn: {gogame.turn(state)}")
+
+    # print(
+    #     f"state 1:\n{state}\nreward:\n{reward}\ndone:\n{done}\ninfo:\n{info}\n")
+
     valid_moves = go_env.valid_moves()[:-1].reshape((19, 19))
+
+    state, reward, done, info = go_env.step(second_action)
+
+    print("\nRender board after second move:\n")
+    go_env.render('terminal')
+    print('\nvalid moves\n')
+    print(go_env.valid_moves())
+
+    print(f"gogame turn: {gogame.turn(state)}")
+    # print(
+    #     f"state 2:\n{state}\nreward:\n{reward}\ndone:\n{done}\ninfo:\n{info}\n")
 
     assert valid_moves[18, 18] == 0.
