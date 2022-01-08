@@ -1,5 +1,5 @@
 import tensorflow as tf
-import time 
+import time
 
 start = time.time()
 
@@ -8,21 +8,21 @@ start = time.time()
 print(tf.add(1, 2).numpy())
 print(tf.constant("Hello, World!").numpy())
 
-# get and load the data 
+# get and load the data
 mnist = tf.keras.datasets.mnist
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
 
-# build the model 
+# build the model
 model = tf.keras.models.Sequential([
-  tf.keras.layers.Flatten(input_shape=(28, 28)),
-  tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(10)
+    tf.keras.layers.Flatten(input_shape=(28, 28)),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(10)
 ])
 
-# get the predictions and print them 
+# get the predictions and print them
 predictions = model(x_train[:1]).numpy()
 print(f'Predictions: {tf.nn.softmax(predictions).numpy()}')
 
@@ -46,11 +46,11 @@ should be close to -tf.log(1/10) ~= 2.3.
 
 print(f'initial loss: {loss_fn(y_train[:1], predictions).numpy()}')
 
-# Set up the Adam optimizer, loss function, and metrics into the model itself 
+# Set up the Adam optimizer, loss function, and metrics into the model itself
 
-model.compile(optimizer='adam',loss=loss_fn,metrics=['accuracy'])
+model.compile(optimizer='adam', loss=loss_fn, metrics=['accuracy'])
 
-# Now, the training part, finally. 
+# Now, the training part, finally.
 model.fit(x_train, y_train, epochs=10)
 
 print('\n')
@@ -63,13 +63,17 @@ The image classifier is now trained to ~98% accuracy on this dataset. To learn m
 If you want your model to return a probability, you can wrap the trained model, and attach the softmax to it:
 '''
 probability_model = tf.keras.Sequential([
-  model,
-  tf.keras.layers.Softmax()
+    model,
+    tf.keras.layers.Softmax()
 ])
 
-print(f'Probability model: {probability_model(x_test[:5])}')
+results = probability_model(x_test[:5])
+print(
+    f'Probability model results: {results}, type: {type(results)}\n')
 
-# print out the duration of this program 
+
+results = results.numpy()
+print(f"As NumPy: {results}, type: {type(results)}\n")
+
+# print out the duration of this program
 print(f'The duration of this program is: {time.time() - start} seconds.')
-
-

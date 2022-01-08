@@ -25,7 +25,8 @@ def init_state(size):
 
 def batch_init_state(batch_size, board_size):
     # return initial board (numpy board)
-    batch_state = np.zeros((batch_size, govars.NUM_CHNLS, board_size, board_size))
+    batch_state = np.zeros(
+        (batch_size, govars.NUM_CHNLS, board_size, board_size))
     return batch_state
 
 
@@ -54,7 +55,8 @@ def next_state(state, action1d, canonical=False):
         state[govars.PASS_CHNL] = 0
 
         # Assert move is valid
-        assert state[govars.INVD_CHNL, action2d[0], action2d[1]] == 0, ("Invalid move", action2d)
+        assert state[govars.INVD_CHNL, action2d[0],
+                     action2d[1]] == 0, ("Invalid move", action2d)
 
         # Add piece
         state[player, action2d[0], action2d[1]] = 1
@@ -73,7 +75,8 @@ def next_state(state, action1d, canonical=False):
                 ko_protect = killed_group[0]
 
     # Update invalid moves
-    state[govars.INVD_CHNL] = state_utils.compute_invalid_moves(state, player, ko_protect)
+    state[govars.INVD_CHNL] = state_utils.compute_invalid_moves(
+        state, player, ko_protect)
 
     # Switch turn
     state_utils.set_turn(state)
@@ -95,7 +98,8 @@ def batch_next_states(batch_states, batch_action1d, canonical=False):
     batch_pass = np.nonzero(batch_action1d == pass_idx)
     batch_non_pass = np.nonzero(batch_action1d != pass_idx)[0]
     batch_prev_passed = batch_prev_player_passed(batch_states)
-    batch_game_ended = np.nonzero(batch_prev_passed & (batch_action1d == pass_idx))
+    batch_game_ended = np.nonzero(
+        batch_prev_passed & (batch_action1d == pass_idx))
     batch_action2d = np.array([batch_action1d[batch_non_pass] // board_shape[0],
                                batch_action1d[batch_non_pass] % board_shape[1]]).T
 
@@ -112,10 +116,12 @@ def batch_next_states(batch_states, batch_action1d, canonical=False):
     batch_states[batch_non_pass, govars.PASS_CHNL] = 0
 
     # Assert all non-pass moves are valid
-    assert (batch_states[batch_non_pass, govars.INVD_CHNL, batch_action2d[:, 0], batch_action2d[:, 1]] == 0).all()
+    assert (batch_states[batch_non_pass, govars.INVD_CHNL,
+            batch_action2d[:, 0], batch_action2d[:, 1]] == 0).all()
 
     # Add piece
-    batch_states[batch_non_pass, batch_non_pass_players, batch_action2d[:, 0], batch_action2d[:, 1]] = 1
+    batch_states[batch_non_pass, batch_non_pass_players,
+                 batch_action2d[:, 0], batch_action2d[:, 1]] = 1
 
     # Get adjacent location and check whether the piece will be surrounded by opponent's piece
     batch_adj_locs, batch_surrounded = state_utils.batch_adj_data(batch_states[batch_non_pass], batch_action2d,
@@ -162,7 +168,8 @@ def valid_moves(state):
 def batch_invalid_moves(batch_state):
     n = len(batch_state)
     batch_invalid_moves_bool = batch_state[:, govars.INVD_CHNL].reshape(n, -1)
-    batch_invalid_moves_bool = np.append(batch_invalid_moves_bool, np.zeros((n, 1)), axis=1)
+    batch_invalid_moves_bool = np.append(
+        batch_invalid_moves_bool, np.zeros((n, 1)), axis=1)
     return batch_invalid_moves_bool
 
 
@@ -255,7 +262,8 @@ def liberties(state: np.ndarray):
 
     liberty_list = []
     for player_pieces in [blacks, whites]:
-        liberties = ndimage.binary_dilation(player_pieces, state_utils.surround_struct)
+        liberties = ndimage.binary_dilation(
+            player_pieces, state_utils.surround_struct)
         liberties *= (1 - all_pieces).astype(np.bool)
         liberty_list.append(liberties)
 
@@ -280,7 +288,8 @@ def areas(state):
 
     empty_labels, num_empty_areas = ndimage.measurements.label(empties)
 
-    black_area, white_area = np.sum(state[govars.BLACK]), np.sum(state[govars.WHITE])
+    black_area, white_area = np.sum(
+        state[govars.BLACK]), np.sum(state[govars.WHITE])
     for label in range(1, num_empty_areas + 1):
         empty_area = empty_labels == label
         neighbors = ndimage.binary_dilation(empty_area)
@@ -337,21 +346,36 @@ def batch_canonical_form(batch_state):
 
 def random_symmetry(image):
     """
-    Returns a random symmetry of the image
+    Returns a random symmetry of the image, one of the possible 8 symmetries
     :param image: A (C, BOARD_SIZE, BOARD_SIZE) numpy array, where C is any number
     :return:
     """
     orientation = np.random.randint(0, 8)
 
-    if (orientation >> 0) % 2:
+    if orientation < 4:
+        if orientation == 0:
+            return image
+        if orientation == 1:
+            # rotate 90 degrees once
+            image = np.rot90(image, k=1, axes=(1, 2))
+        elif orientation == 2:
+            # Rotate 90 degrees 2 times
+            image = np.rot90(image, k=2, axes=(1, 2))
+        elif orientation == 3:
+            # Rotate 90 degrees 3 times
+            image = np.rot90(image, k=3, axes=(1, 2))
+
+    else:
         # Horizontal flip
-        image = np.flip(image, 2)
-    if (orientation >> 1) % 2:
-        # Vertical flip
-        image = np.flip(image, 1)
-    if (orientation >> 2) % 2:
-        # Rotate 90 degrees
-        image = np.rot90(image, axes=(1, 2))
+        image = np.flip(image, axis=2)
+        if orientation == 4:
+            return image
+        elif orientation == 5:
+            image = np.rot90(image, k=1, axes=(1, 2))
+        elif orientation == 6:
+            image = np.rot90(image, k=2, axes=(1, 2))
+        elif orientation == 7:
+            image = np.rot90(image, k=3, axes=(1, 2))
 
     return image
 
@@ -433,6 +457,8 @@ def str(state):
     done = game_ended(state)
     ppp = prev_player_passed(state)
     t = turn(state)
-    board_str += '\tTurn: {}, Last Turn Passed: {}, Game Over: {}\n'.format('B' if t == 0 else 'W', ppp, done)
-    board_str += '\tBlack Area: {}, White Area: {}\n'.format(black_area, white_area)
+    board_str += '\tTurn: {}, Last Turn Passed: {}, Game Over: {}\n'.format(
+        'B' if t == 0 else 'W', ppp, done)
+    board_str += '\tBlack Area: {}, White Area: {}\n'.format(
+        black_area, white_area)
     return board_str
