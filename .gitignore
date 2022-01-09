@@ -8,3 +8,4 @@ db.sqlite3
 main.js
 main.js.LICENSE.txt
 .DS_Store
+*.egg-info
