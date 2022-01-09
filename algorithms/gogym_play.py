@@ -1,5 +1,5 @@
 import gym
-import gogame
+from gym_go import gogame
 from utils import *
 # from neuralnet import *
 
@@ -28,6 +28,7 @@ args = dotdict({
 
 if __name__ == "__main__":
     go_env = gym.make('gym_go:go-v0', size=19, komi=0, reward_method='real')
+    # print(go_env)
     # initialize the environment
     go_env.reset()  # this is necessary
 

@@ -23,21 +23,11 @@ If you plan on running `docker-compose.yml`, create an`.env` file on this projec
 
 ## Local Way
 
-`conda env create -f ./env_setup/environment.yml`
+Navigate to the [`environment file location`](./env_setup/environment.yml) on your terminal.
+
+`conda env create -f environment.yml`
 
 `conda activate alphagolite`
-
-In some other repository,
-
-`git clone https://github.com/aigagror/GymGo.git`
-
-Navigate to that repo's root directory, and perform
-
-`pip install -e .`
-
-Navigate back to this directory.
-
-`cd play_go_web_app` on two different terminals for the backend and the frontend.
 
 ### The backend:
 
@@ -85,21 +75,6 @@ On the other terminal, perform:
 
 # Sources
 
-- [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project.
-- [Django channels tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
-
-# Planning Considerations
-
-Path 1: implement game as we found on GitHub
-
-- benefits: easier to do that way, and it would be faster
-- downsides: less readable and might be less applicable to those in the reinforcement learning community
-
-Path 2: implementing in Gym
-
-- adding features like the .render() method, so that you can watch the neural net training
-- provides value to the A.I. research community
-
-Bottlenecks:
-
-- ...
+- [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project. His tutorial is on YouTube.
+- [Django Channels Tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
+- [GymGo](https://github.com/aigagror/GymGo.git) helped us with setting up the Go board game environment, taking care of implementation details such as valid moves, generating board symmetries, playing moves, and rendering board states.
