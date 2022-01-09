@@ -1,6 +1,6 @@
 # AlphaGo Lite
 
-This repository holds code for the A.I. model I made for playing the board game of Go. I am to develop the algorithms used to develop AlphaGo Zero, in a lite version. It also holds web application code for a Go-playing website where users can play against each other or play against the A.I.
+This repository holds code for the A.I. model we made for playing the board game of Go. We are developing the algorithms used to develop AlphaGo Zero, as a lite version. It also holds web application code for a Go-playing website where users can play against each other or play against the A.I.
 
 It is still a work in progress.
 
@@ -75,6 +75,6 @@ On the other terminal, perform:
 
 # Sources
 
-- [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project. His tutorial is on [YouTube](https://youtube.com/playlist?list=PLzMcBGfZo4-kCLWnGmK0jUBmGLaJxvi4j).
+- [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project's web app. His tutorial is on [YouTube](https://youtube.com/playlist?list=PLzMcBGfZo4-kCLWnGmK0jUBmGLaJxvi4j).
 - [Django Channels Tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
 - [GymGo](https://github.com/aigagror/GymGo.git) helped us with setting up the Go board game environment, taking care of implementation details such as valid moves, generating board symmetries, playing moves, and rendering board states.
