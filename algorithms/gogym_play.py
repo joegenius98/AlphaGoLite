@@ -52,7 +52,7 @@ if __name__ == "__main__":
         go_env.render('terminal')
 
         print("past_states_w_player:\n")
-        print(past_states_w_player, past_states_w_player.shape)
+        print(past_states_w_player[:4], past_states_w_player.shape)
 
         print('\nvalid moves:\n')
         print(go_env.valid_moves(), go_env.valid_moves().shape)
