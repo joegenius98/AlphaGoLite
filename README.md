@@ -73,3 +73,5 @@ On the other terminal, perform:
 - [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project's web app. His tutorial is on [YouTube](https://youtube.com/playlist?list=PLzMcBGfZo4-kCLWnGmK0jUBmGLaJxvi4j).
 - [Django Channels Tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
 - [GymGo](https://github.com/aigagror/GymGo.git) helped us with setting up the Go board game environment, taking care of implementation details such as valid moves, generating board symmetries, playing moves, and rendering board states.
+
+- [Beginner’s Guide to Custom Environments in OpenAI’s Gym](https://towardsdatascience.com/beginners-guide-to-custom-environments-in-openai-s-gym-989371673952) helped us integrate the [`GymGo`](https://github.com/aigagror/GymGo.git) repository into our [`algorithms`](./algorithms) folder.

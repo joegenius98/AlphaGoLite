@@ -19,7 +19,7 @@ The state of the game is a numpy array
 
 def init_state(size):
     # return initial board (numpy board)
-    state = np.zeros((govars.NUM_CHNLS, size, size))
+    state = np.zeros((govars.NUM_CHNLS, size, size)).astype(int)
     return state
 
 

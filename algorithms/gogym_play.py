@@ -34,45 +34,31 @@ if __name__ == "__main__":
 
     # nnet = AlphaGoLite_Network()
 
-    # print(go_env.state_)
-    # prints an array, 1 being valid, 0 being occupied
-    print("\nValid moves: \n")
-    print(go_env.valid_moves(),
-          f"{type(go_env.valid_moves())} {go_env.valid_moves().shape}\n")
-
+    print("go_env.render('terminal'):\n")
+    go_env.render('terminal')
     # initial_state_copy = go_env.state()
 
     # # visual representation of board
     # print(gogame.str(initial_state_copy))
 
-    first_action = (18, 18)
-    second_action = (0, 0)
+    actions = ((18, 18), (0, 0), (0, 2), (2, 17))
 
-    # the state is a class of instance go game. We can use
-    # this state to perform mcts and evaluation.
-    state, reward, done, info = go_env.step(first_action)
-    print("go_env.render('terminal'):\n")
+    for action in actions:
+        # the state is a class of instance go game. We can use
+        # this state to perform mcts and evaluation.
+        (state, past_states_w_player), reward, done, info = go_env.step(action)
+        assert (go_env.past_states_with_player == past_states_w_player).all()
+        print(f"Action taken: {action}")
+        go_env.render('terminal')
 
-    go_env.render('terminal')
-    print('\nvalid moves:\n')
-    print(go_env.valid_moves())
+        print("past_states_w_player:\n")
+        print(past_states_w_player, past_states_w_player.shape)
 
-    print(f"gogame turn: {gogame.turn(state)}")
+        print('\nvalid moves:\n')
+        print(go_env.valid_moves(), go_env.valid_moves().shape)
 
-    # print(
-    #     f"state 1:\n{state}\nreward:\n{reward}\ndone:\n{done}\ninfo:\n{info}\n")
+        print(f"It is {go_env.turn()}'s turn\n")
 
-    valid_moves = go_env.valid_moves()[:-1].reshape((19, 19))
+    # valid_moves = go_env.valid_moves()[:-1].reshape((19, 19))
 
-    state, reward, done, info = go_env.step(second_action)
-
-    print("\nRender board after second move:\n")
-    go_env.render('terminal')
-    print('\nvalid moves\n')
-    print(go_env.valid_moves())
-
-    print(f"gogame turn: {gogame.turn(state)}")
-    # print(
-    #     f"state 2:\n{state}\nreward:\n{reward}\ndone:\n{done}\ninfo:\n{info}\n")
-
-    assert valid_moves[18, 18] == 0.
+    # assert valid_moves[18, 18] == 0.
