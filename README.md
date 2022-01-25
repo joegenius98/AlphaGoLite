@@ -10,7 +10,7 @@ Inside of [`play_go_web_app/play_go_web_app`](play_go_web_app/play_go_web_app), 
 
 Otherwise, simply get rid of the `import .django_secrets ...` statement in [`settings.py`](play_go_web_app/play_go_web_app/settings.py) and the corresponding variables and make the secret key an empty string. `ALLOWED_HOSTS` can just be an empty list.
 
-**Note: [`Docker`](https://www.docker.com/get-started) is needed no matter if you run the Docker way or the local way. You need Docker at least for installing `redis`, which enables socket functionality.**
+**Note: [`Docker`](https://www.docker.com/get-started) is needed no matter if you run the Docker way or the local way. You need Docker at least for installing `redis`, which enables web socket functionality.**
 
 ## Docker Way
 
