@@ -51,10 +51,14 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install conda environment dependencies
+      - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
-          $CONDA/bin/conda env update --file env_setup/environment.yml
+          echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install conda environment dependencies
+        run: |
+          conda env update --file env_setup/environment.yml --name base
 
       - name: Deploy React to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.2.5
