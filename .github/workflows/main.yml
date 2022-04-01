@@ -38,9 +38,30 @@ jobs:
           npm run build
           touch .nojekyll
 
-      # - name: Build Django
-      #   run: |
-      #     cd play_go-web_app/api
+      # https://github.com/marketplace/actions/redis-server-in-github-actions
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.4.0
+        with:
+          redis-version: 5
+          redis-container-name: sockets
+          redis-port: 6379
+
+      - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+      
+      - name: Install conda environment dependencies
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        $CONDA/bin/conda env update --file env_setup/environment.yml
+
+      - name: Build Django
+        run: |
+          cd play_go-web_app
+          python manage.py makemigrations
+          python manage.py migrate
+          python manage.py runserver
 
       - name: Deploy React to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.2.5
