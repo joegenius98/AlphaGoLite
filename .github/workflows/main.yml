@@ -47,14 +47,14 @@ jobs:
           redis-port: 6379
 
       - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-      
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
       - name: Install conda environment dependencies
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        $CONDA/bin/conda env update --file env_setup/environment.yml
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          $CONDA/bin/conda env update --file env_setup/environment.yml
 
       - name: Build Django
         run: |
