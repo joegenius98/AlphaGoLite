@@ -2,6 +2,9 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "16.x"
+  },
   "main": "./play_go_web_app/frontend/src/index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
