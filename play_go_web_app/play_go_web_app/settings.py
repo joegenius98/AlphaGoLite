@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 try:
     # from .django_secrets import SECRET_CODE, SECRET_HOST  # for local dev
@@ -18,7 +19,6 @@ try:
 except ImportError:
     SECRET_CODE = os.getenv('DJANGO_SECRET_KEY')
 
-import os
 import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
