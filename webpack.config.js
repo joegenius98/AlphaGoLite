@@ -2,9 +2,9 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./play_go_web_app/frontend/src/index.js",
   output: {
-    path: path.resolve(__dirname, "./static/frontend"),
+    path: path.resolve(__dirname, "./play_go_web_app/frontend/static/frontend"),
     filename: "[name].js",
   },
   module: {
