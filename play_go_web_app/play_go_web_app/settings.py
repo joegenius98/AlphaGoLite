@@ -13,11 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
-try:
-    # from .django_secrets import SECRET_CODE, SECRET_HOST  # for local dev
-    from .django_secrets import SECRET_CODE
-except ImportError:
-    SECRET_CODE = os.getenv('DJANGO_SECRET_KEY')
+from .django_secrets import SECRET_CODE, SECRET_HOST
 
 import django_heroku
 
@@ -34,8 +30,7 @@ SECRET_KEY = SECRET_CODE
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['localhost', SECRET_HOST]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', SECRET_HOST]
 
 
 # Application definition
@@ -149,15 +144,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# added for Heroku deployment
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'frontend' / 'static'
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-django_heroku.settings(locals())
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
