@@ -1,78 +1,78 @@
-# This is a basic workflow to help you get started with Actions
+# # This is a basic workflow to help you get started with Actions
 
-name: build-and-deploy
+# name: build-and-deploy
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push but only for the master branch
-  push:
-    branches: [master]
+# # Controls when the workflow will run
+# on:
+#   # Triggers the workflow on push but only for the master branch
+#   push:
+#     branches: [master]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+#   # Allows you to run this workflow manually from the Actions tab
+#   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+# # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# jobs:
+#   # This workflow contains a single job called "build"
+#   build:
+#     # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          lfs: false # Default behavior is to not fetch LFS, change to to true if you store assets in LFS
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+#       - uses: actions/checkout@v2
+#         with:
+#           lfs: false # Default behavior is to not fetch LFS, change to to true if you store assets in LFS
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.0.0
-        with:
-          # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
-          node-version: lts/*
+#       - name: Setup Node.js environment
+#         uses: actions/setup-node@v3.0.0
+#         with:
+#           # Version Spec of the version to use.  Examples: 12.x, 10.15.1, >=10.15.0
+#           node-version: lts/*
 
-      - name: Build React
-        run: |
-          cd play_go_web_app/frontend
-          npm install
-          npm run build
-          touch .nojekyll
+#       - name: Build React
+#         run: |
+#           cd play_go_web_app/frontend
+#           npm install
+#           npm run build
+#           touch .nojekyll
 
-      # https://github.com/marketplace/actions/redis-server-in-github-actions
-      - name: Start Redis
-        uses: supercharge/redis-github-action@1.4.0
-        with:
-          redis-version: 5
-          redis-container-name: sockets
-          redis-port: 6379
+#       # https://github.com/marketplace/actions/redis-server-in-github-actions
+#       - name: Start Redis
+#         uses: supercharge/redis-github-action@1.4.0
+#         with:
+#           redis-version: 5
+#           redis-container-name: sockets
+#           redis-port: 6379
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+#       - name: Set up Python 3.8
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: 3.8
 
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+#       - name: Add conda to system path
+#         run: |
+#           # $CONDA is an environment variable pointing to the root of the miniconda directory
+#           echo $CONDA/bin >> $GITHUB_PATH
 
-      - name: Install conda environment dependencies
-        run: |
-          conda env update --file env_setup/environment.yml --name base
+#       - name: Install conda environment dependencies
+#         run: |
+#           conda env update --file env_setup/environment.yml --name base
 
-      - name: Deploy React to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.2.5
-        with:
-          # This is the branch you wish to deploy to, for example gh-pages or docs.
-          branch: gh-pages
-          # The folder in your repository that you want to deploy. If your build script compiles into a directory named build you would put it here. Folder paths cannot have a leading / or ./. If you wish to deploy the root directory you can place a . here.
-          folder: play_go_web_app/frontend
-          single-commit: true
+#       - name: Deploy React to GitHub Pages
+#         uses: JamesIves/github-pages-deploy-action@v4.2.5
+#         with:
+#           # This is the branch you wish to deploy to, for example gh-pages or docs.
+#           branch: gh-pages
+#           # The folder in your repository that you want to deploy. If your build script compiles into a directory named build you would put it here. Folder paths cannot have a leading / or ./. If you wish to deploy the root directory you can place a . here.
+#           folder: play_go_web_app/frontend
+#           single-commit: true
 
-      - name: Run Django
-        run: |
-          cd play_go_web_app
-          $CONDA/bin/conda activate alphagolite
-          python3 manage.py makemigrations
-          python3 manage.py migrate
-          python3 manage.py runserver
+#       - name: Run Django
+#         run: |
+#           cd play_go_web_app
+#           $CONDA/bin/conda activate alphagolite
+#           python3 manage.py makemigrations
+#           python3 manage.py migrate
+#           python3 manage.py runserver
