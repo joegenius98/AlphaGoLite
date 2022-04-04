@@ -31,7 +31,8 @@ SECRET_KEY = SECRET_CODE
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*'] if 'DJANGO_SECRET_KEY' in os.environ else ['localhost', SECRET_HOST]
+ALLOWED_HOSTS = [
+    '*'] if 'DJANGO_SECRET_KEY' in os.environ else ['localhost', SECRET_HOST]
 ALLOWED_HOSTS = ['*']
 
 
@@ -150,7 +151,7 @@ STATIC_URL = '/static/'
 # added for Heroku deployment
 if 'DJANGO_SECRET_KEY' in os.environ:
     STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'static']
-    
+
     STATIC_ROOT = BASE_DIR / 'staticfiles'
 
     django_heroku.settings(locals())
