@@ -12,7 +12,7 @@ import os
 
 try:
     # from .django_secrets import SECRET_CODE, SECRET_HOST  # for local dev
-    from .django_secrets import SECRET_CODE
+    from .django_secrets import SECRET_CODE, SECRET_HOST
 except ImportError:
     SECRET_CODE = os.getenv('DJANGO_SECRET_KEY')
 
