@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const process = require("process");
 
 module.exports = {
   entry: "./play_go_web_app/frontend/src/index.js",
@@ -25,8 +26,7 @@ module.exports = {
     new webpack.DefinePlugin({
       "process.env": {
         // This has effect on the react lib size
-        // NODE_ENV: JSON.stringify("development"),
-        NODE_ENV: JSON.stringify("production"),
+        NODE_ENV: "DJANGO_SECRET_KEY" in process.env ? JSON.stringify("production") : JSON.stringify("development"),
       },
     }),
   ],
