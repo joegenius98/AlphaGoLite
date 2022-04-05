@@ -76,4 +76,4 @@ On the other terminal, perform:
 
 - [Beginner’s Guide to Custom Environments in OpenAI’s Gym](https://towardsdatascience.com/beginners-guide-to-custom-environments-in-openai-s-gym-989371673952) helped us integrate the [`GymGo`](https://github.com/aigagror/GymGo.git) repository into our [`algorithms`](./algorithms) folder.
 
-[Django-React App Tutorial](https://towardsdev.com/django-react-app-from-scratch-to-deployment-part-1-8a2fa9a97f1)
+[Django-React App Deployment Tutorial](https://towardsdev.com/django-react-app-from-scratch-to-deployment-part-1-8a2fa9a97f1)
