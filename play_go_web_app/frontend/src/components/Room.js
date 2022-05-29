@@ -99,7 +99,7 @@ export default function Room(props) {
   );
 
   const roomSocket = useRef(
-    new WebSocket(`ws://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
+    new WebSocket(`wss://${window.location.host}/ws/rooms/${ROOM_CODE}/`)
   );
 
   const handleChange = (event) => {
