@@ -4,7 +4,25 @@ This repository holds code for the A.I. model we made for playing the board game
 
 It is still a work in progress.
 
-# How to Run
+# Heroku-Specific Deployment
+
+## Modifying Frontend Structure
+
+I needed to bring [`.babelrc`](https://github.com/joegenius98/AlphaGoLite/blob/main/.babelrc), [`package.json`](https://github.com/joegenius98/AlphaGoLite/blob/main/package.json), and [`webpack.config.js`](https://github.com/joegenius98/AlphaGoLite/blob/main/webpack.config.js) to get the frontend set up. Apparently, Heroku cannot process my frontend files without doing this.
+
+## Adding New Files
+
+* [`Procfile`](https://github.com/joegenius98/AlphaGoLite/blob/main/Procfile) categorizes and lists the main commands to be run.
+* [`requirements.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/requirements.txt) sets the Heroku `pip` to install the necessary packages. (I had to get `tensorflow-cpu` due to memory constraints of the slug size. Even the current slug size is not optimal, since it is over the soft limit, which affects booting time. Knoweldge of this came from the Heroku app build logs.)
+* [`runtime.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/runtime.txt) specifies the version of Python to run.
+
+
+
+
+
+# Local Development
+
+## How to Run
 
 Inside of [`play_go_web_app/play_go_web_app`](play_go_web_app/play_go_web_app), create `django_secrets.py` and create two string variables `SECRET_CODE` and `SECRET_HOST` to be used in [`settings.py`](play_go_web_app/play_go_web_app/settings.py) if deployment is your priority.
 
@@ -12,11 +30,11 @@ Otherwise, simply get rid of the `import .django_secrets ...` statement in [`set
 
 **Note: [`Docker`](https://www.docker.com/get-started) is needed no matter if you run the Docker way or the local way. You need Docker at least for installing `redis`, which enables web socket functionality.**
 
-## Docker Way
+### Docker Way
 
 If you plan on running `docker-compose.yml`, create an`.env` file on this project's directory and set `SECRET_HOST` to whatever you desire (e.g., a website domain for deployment).
 
-## Local Way
+### Local Way
 
 Navigate to the [`environment file location`](./env_setup/environment.yml) on your terminal.
 
@@ -24,7 +42,7 @@ Navigate to the [`environment file location`](./env_setup/environment.yml) on yo
 
 `conda activate alphagolite`
 
-### The backend:
+#### The backend:
 
 `cd play_go_web_app` again
 
@@ -38,7 +56,7 @@ On one terminal, perform:
 
 `python manage.py runserver`
 
-### The frontend
+#### The frontend
 
 Install [`Node.js`](https://nodejs.org/en/download/).
 
@@ -55,7 +73,7 @@ On the other terminal, perform:
 
 `npm run dev`
 
-### Redis
+#### Redis
 
 `docker run -p 6379:6379 -d redis:5 `
 
