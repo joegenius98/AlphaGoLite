@@ -17,7 +17,7 @@ class ChatConsumer(WebsocketConsumer):
     '''
 
     def connect(self):
-        # 'url_route' -> /ws/rooms/<uri> from routing.py; <uri> is the room code
+        # 'url_route' -> /wss/rooms/<uri> from routing.py; <uri> is the room code
         self.room_name = self.scope['url_route']['kwargs']['uri']
         self.room_group_name = 'chat_%s' % self.room_name
 
