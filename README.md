@@ -16,6 +16,9 @@ I needed to bring [`.babelrc`](https://github.com/joegenius98/AlphaGoLite/blob/m
 * [`requirements.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/requirements.txt) sets the Heroku `pip` to install the necessary packages. (I had to get `tensorflow-cpu` due to memory constraints of the slug size. Even the current slug size is not optimal, since it is over the soft limit, which affects booting time. Knoweldge of this came from the Heroku app build logs.)
 * [`runtime.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/runtime.txt) specifies the version of Python to run.
 
+## Modifying [`settings.py`](https://github.com/joegenius98/AlphaGoLite/blob/main/play_go_web_app/play_go_web_app/settings.py) 
+Heroku has some environmental variables set up. I distinguish between local variables and deployment variables in that file.
+
 
 
 
