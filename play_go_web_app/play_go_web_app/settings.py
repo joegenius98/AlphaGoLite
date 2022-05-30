@@ -147,13 +147,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# added for Heroku deployment
-if 'DJANGO_SECRET_KEY' in os.environ:
-    STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'static']
+# # added for Heroku deployment
+# if 'DJANGO_SECRET_KEY' in os.environ:
+STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'static']
 
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-    django_heroku.settings(locals())
+django_heroku.settings(locals())
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
