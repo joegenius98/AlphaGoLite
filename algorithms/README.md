@@ -7,7 +7,7 @@
 
 # How the Training Pipeline Works
 
-This is the understanding to our best knowledge.
+This is the understanding to our best knowledge, from [the AlphaGo Zero paper](https://www.nature.com/articles/nature24270.epdf?author_access_token=VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ).
 
 1. We initlaize the neural network parameters randomly. Then, we generate 25,000 games at each iteration.
    We send off these games to a training database queue whose maximum capacity is 500,000 games. (When we fill
