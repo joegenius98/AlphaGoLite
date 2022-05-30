@@ -31,9 +31,8 @@ SECRET_KEY = SECRET_CODE
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '*'] if 'DJANGO_SECRET_KEY' in os.environ else ['localhost', SECRET_HOST]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] if 'DJANGO_SECRET_KEY' in os.environ else ['localhost', SECRET_HOST]
+# ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -92,7 +91,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             # name the first tuple entry the name of the redis container
             # source: https://stackoverflow.com/questions/55385085/deploy-django-channels-with-docker
-            "hosts": [os.environ.get("REDIS_URL", ('localhost', 6379))],
+            "hosts": [os.environ.get("REDISCLOUD_URL", ('localhost', 6379))],
         },
     },
 }
