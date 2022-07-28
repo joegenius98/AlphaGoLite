@@ -8,16 +8,17 @@ It is still a work in progress.
 
 ## Modifying Frontend Structure
 
-I needed to bring [`.babelrc`](https://github.com/joegenius98/AlphaGoLite/blob/main/.babelrc), [`package.json`](https://github.com/joegenius98/AlphaGoLite/blob/main/package.json), and [`webpack.config.js`](https://github.com/joegenius98/AlphaGoLite/blob/main/webpack.config.js) to get the frontend set up. Apparently, Heroku cannot process my frontend files without doing this.
+[`.babelrc`](https://github.com/joegenius98/AlphaGoLite/blob/main/.babelrc), [`package.json`](https://github.com/joegenius98/AlphaGoLite/blob/main/package.json), and [`webpack.config.js`](https://github.com/joegenius98/AlphaGoLite/blob/main/webpack.config.js) were needed
+to get the frontend set up. Apparently, Heroku cannot process my frontend files without doing this.
 
 ## Adding New Files
 
 * [`Procfile`](https://github.com/joegenius98/AlphaGoLite/blob/main/Procfile) categorizes and lists the main commands to be run.
-* [`requirements.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/requirements.txt) sets the Heroku `pip` to install the necessary packages. (I had to get `tensorflow-cpu` due to memory constraints of the slug size. Even the current slug size is not optimal, since it is over the soft limit, which affects booting time. Knoweldge of this came from the Heroku app build logs.)
+* [`requirements.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/requirements.txt) sets the Heroku `pip` to install the necessary packages. (`tensorflow-cpu`, as opposed to the GPU version, is needed due to memory constraints of the slug size. Even the current slug size is not optimal, since it is over the soft limit, which affects booting time. Knoweldge of this came from the Heroku app build logs.)
 * [`runtime.txt`](https://github.com/joegenius98/AlphaGoLite/blob/main/runtime.txt) specifies the version of Python to run.
 
 ## Modifying [`settings.py`](https://github.com/joegenius98/AlphaGoLite/blob/main/play_go_web_app/play_go_web_app/settings.py) 
-Heroku has some environmental variables set up. I distinguish between local variables and deployment variables in that file.
+Heroku has some environmental variables set up. Local variables and deployment variables are distinguished in that file.
 
 
 
