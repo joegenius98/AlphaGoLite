@@ -92,6 +92,8 @@ On the other terminal, perform:
 
 # Sources
 
+- [MuZero Tutorial](https://medium.com/applied-data-science/how-to-build-your-own-muzero-in-python-f77d5718061a)
+
 - [TechWithTim's Music Controller Web App Tutorial](https://github.com/techwithtim/Music-Controller-Web-App-Tutorial) helped us immensely with starting this project's web app. His tutorial is on [YouTube](https://youtube.com/playlist?list=PLzMcBGfZo4-kCLWnGmK0jUBmGLaJxvi4j).
 - [Django Channels Tutorial](https://channels.readthedocs.io/en/stable/tutorial/part_1.html) from the docs helped us build sockets for real-time communication across clients viewing or partiicpating in gameplay inside a Room.
 - [Django Channels Deploying](https://channels.readthedocs.io/en/stable/deploying.html) helped with debugging deployment issues with Heroku (if only I had seen this first, I would not have dealt with the many deployment errors I did on 5/29/2022.)
@@ -99,4 +101,4 @@ On the other terminal, perform:
 
 - [Beginner’s Guide to Custom Environments in OpenAI’s Gym](https://towardsdatascience.com/beginners-guide-to-custom-environments-in-openai-s-gym-989371673952) helped us integrate the [`GymGo`](https://github.com/aigagror/GymGo.git) repository into our [`algorithms`](./algorithms) folder.
 
-[Django-React App Deployment Tutorial](https://towardsdev.com/django-react-app-from-scratch-to-deployment-part-1-8a2fa9a97f1)
+- [Django-React App Deployment Tutorial](https://towardsdev.com/django-react-app-from-scratch-to-deployment-part-1-8a2fa9a97f1)
