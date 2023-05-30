@@ -73,17 +73,18 @@ class GoEnv(gym.Env):
         Past states gives the previous 8 board states and the current player
         We stack together:
         1. the current player's stones board (1 to each stone, 0
-        everything else) (X_t) (NOT the player to play),
+        everything else) (X_t) (the player to play),
         2. the opponent's stones board (Y_t)
         3. and the previous 7 timesteps (X_{t-1}, Y_{t-1}, ... X_{t-7}, Y_{t-7}).
-        4. The player to play, C (19x19 array of 1s for black and 0s for white)
+        4. The player to play, C (19x19 array of 1s for white and 0s for black,
+        the opposite orientation of AlphaGo Zero but shouldn't matter)
         """
         self.past_states_with_player = np.concatenate(
             (
-                self.state_[self.turn() ^ 1].reshape((1, 19, 19)),
                 self.state_[self.turn()].reshape((1, 19, 19)),
+                self.state_[self.turn() ^ 1].reshape((1, 19, 19)),
                 self.past_states_with_player[:14],
-                self.state_[2].reshape((1, 19, 19)) ^ 1
+                self.state_[govars.TURN_CHNL].reshape((1, 19, 19))
             ), axis=0
         )
 
