@@ -4,7 +4,9 @@ This repository holds code for the A.I. model we made for playing the board game
 
 It is still a work in progress.
 
-# Heroku-Specific Deployment
+Heroku did not turn out great due to slow deployment and not giving us enough memory to install the GPU version of TensorFlow. So, we are currently looking for other options.
+
+# <strike> Heroku-Specific Deployment
 
 ## Modifying Frontend Structure
 
@@ -19,6 +21,7 @@ to get the frontend set up. Apparently, Heroku cannot process my frontend files 
 
 ## Modifying [`settings.py`](https://github.com/joegenius98/AlphaGoLite/blob/main/play_go_web_app/play_go_web_app/settings.py) 
 Heroku has some environmental variables set up. Local variables and deployment variables are distinguished in that file.
+</strike>
 
 
 
