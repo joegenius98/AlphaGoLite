@@ -19,11 +19,9 @@ const isStarPoint = (row, col) => {
   return starPoints.includes(row) && starPoints.includes(col);
 };
         
-
-
 const GoBoard = () => {
   const board = createBoard();
-
+  const [stones, setStones] = React.useState([]);
   return (
     <div style={{
       display: "grid",
@@ -31,7 +29,8 @@ const GoBoard = () => {
       gridTemplateRows: `repeat(${boardSize}, 20px)`,
       gap: "1px",
       backgroundColor: "#000",
-    }}>
+    }} 
+    >
       {board.map((row, rowIndex) => (
         row.map((cell, cellIndex) => (
           <div key={`${rowIndex}-${cellIndex}`} style={{
@@ -40,7 +39,15 @@ const GoBoard = () => {
             backgroundColor: "#F3C469",
             border: "1px solid #848484",
             position: "relative",
-          }}>
+          }} onClick={
+            () => {
+              if (stones.length % 2 === 0) {
+                setStones([...stones, {row: rowIndex, col: cellIndex, color: "black"}]);
+              } else {
+                setStones([...stones, {row: rowIndex, col: cellIndex, color: "white"}]);
+              }
+            }
+          }>
             {isStarPoint(rowIndex, cellIndex)  && 
               <div style={{
                 width: "5px",
@@ -51,6 +58,31 @@ const GoBoard = () => {
                 top: "-3px",
                 left: "-3px",
               }}></div>
+            }
+            {
+              stones.map((stone, index) => (
+                stone.row === rowIndex && stone.col === cellIndex && 
+                // <div key={index} style={{
+                //   width: "15px",
+                //   height: "15px",
+                //   backgroundColor: stone.color,
+                //   borderRadius: "50%",
+                //   position: "absolute",
+                //   top: "2px",
+                //   left: "2px",
+                // }}></div>
+                // instead use the svg element from /public/Stone-1.svg for black stones and /public/Stone-2.svg for white stones
+               <svg key={index} style={{
+                width: "15px",
+                height: "15px",
+                position: "absolute",
+                top: "2px",
+                left: "2px",
+              }}>
+                <use href={stone.color === "black" ? "/Stone-1.svg" : "/Stone-2.svg"} />
+              </svg>
+
+              ))
             }
           </div>
         ))
