@@ -1,0 +1,82 @@
+.board-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #F3C469;
+    padding: 10px;
+  }
+  
+  .board-grid {
+    display: grid;
+    gap: 0;
+    position: relative;
+  }
+  
+  .grid-cell {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .grid-line-vertical {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background-color: #000;
+    transform: translateX(-50%);
+  }
+  
+  .grid-line-horizontal {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: #000;
+    transform: translateY(-50%);
+  }
+  
+  .star-point {
+    width: 5px;
+    height: 5px;
+    background-color: #000;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .stone {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+
+  .controls {
+    margin-bottom: 10px;
+  }
+  
+  .pass-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .pass-button:hover {
+    background-color: #555;
+  }
+  
